@@ -5,7 +5,7 @@ const base = SERVER_URL?.replace(/\/$/, '') ?? 'http://localhost:3000';
 export type AuthResponse = { accessToken: string; refreshToken?: string };
 
 export async function signup(dto: { email: string; password: string; nickname: string }): Promise<AuthResponse> {
-  const res = await fetch(`${base}/auth/signup`, {
+  const res = await fetch(`${base}/users/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto),
@@ -15,7 +15,7 @@ export async function signup(dto: { email: string; password: string; nickname: s
 }
 
 export async function login(dto: { email: string; password: string }): Promise<AuthResponse> {
-  const res = await fetch(`${base}/auth/login`, {
+  const res = await fetch(`${base}/users/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto),
