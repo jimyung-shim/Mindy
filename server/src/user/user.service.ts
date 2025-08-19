@@ -5,7 +5,7 @@ import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly users: UserRepository) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async signup(
     email: string,
@@ -13,7 +13,7 @@ export class UserService {
     nickname: string,
   ): Promise<Omit<User, 'password'>> {
     // 1) 중복 이메일 체크
-    const exists = await this.users.findByEmail(email);
+    const exists = await this.userRepository.findByEmail(email);
     if (exists) {
       throw new BadRequestException('이미 가입된 이메일입니다.');
     }
@@ -23,7 +23,7 @@ export class UserService {
     const hashedPassword: string = await bcrypt.hash(password, rounds);
 
     // 3) 저장
-    const user = await this.users.create({
+    const user = await this.userRepository.create({
       email,
       password: hashedPassword, // DB에 저장되는 건 password 필드
       nickname,
