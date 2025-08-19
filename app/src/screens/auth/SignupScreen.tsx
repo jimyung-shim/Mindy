@@ -17,16 +17,16 @@ type Props = NativeStackScreenProps<RootStack, 'Signup'>;
 
 export default function SignupScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
-  const [ID, setID] = useState('');
+  const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; ID?: string; password?: string; confirm?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; nickname?: string; password?: string; confirm?: string }>({});
 
   const validate = () => {
     const e: typeof errors = {};
     if (!isEmail(email)) e.email = '유효한 이메일을 입력하세요';
-    if (!minLen(ID, 2)) e.ID = '닉네임은 2자 이상';
+    if (!minLen(nickname, 2)) e.nickname = '닉네임은 2자 이상';
     if (!minLen(password, 8)) e.password = '비밀번호는 8자 이상';
     if (password !== confirm) e.confirm = '비밀번호가 일치하지 않습니다';
     setErrors(e);
@@ -37,7 +37,7 @@ export default function SignupScreen({ navigation }: Props) {
     if (!validate()) return;
     try {
       setLoading(true);
-      await signup({ email, password, ID });
+      await signup({ email, password, nickname });
       Alert.alert('회원가입 완료', '로그인해 주세요');
       navigation.replace('Login');
     } catch (err: any) {
@@ -50,7 +50,7 @@ export default function SignupScreen({ navigation }: Props) {
   return (
     <ScreenContainer title="회원가입" subtitle="계정을 만들어 시작해 보세요">
       <AuthInput label="Email" value={email} onChangeText={setEmail} placeholder="이메일 입력" keyboardType="email-address" error={errors.email} />
-      <AuthInput label="아이디" value={ID} onChangeText={setID} placeholder="아이디 입력 (2자 이상)" autoCapitalize="none" error={errors.ID} />
+      <AuthInput label="아이디" value={nickname} onChangeText={setNickname} placeholder="아이디 입력 (2자 이상)" autoCapitalize="none" error={errors.nickname} />
       <AuthInput label="비밀번호" value={password} onChangeText={setPassword} placeholder="비밀번호 입력 (8자 이상)" secureTextEntry error={errors.password} />
       <AuthInput label="비밀번호 확인" value={confirm} onChangeText={setConfirm} placeholder="비밀번호 재입력" secureTextEntry error={errors.confirm} />
       <PrimaryButton title={loading ? '처리 중…' : '회원가입'} onPress={onSubmit} loading={loading} />
