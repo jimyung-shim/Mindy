@@ -1,19 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { UserRepository } from './user.repository';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async signup(
     email: string,
@@ -42,27 +34,5 @@ export class UserService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...safeUser } = user;
     return safeUser;
-  }
-
-  async login(email: string, password: string) {
-    const user = await this.userRepository.findByEmail(email);
-    if (!user)
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 올바르지 않습니다.',
-      );
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 올바르지 않습니다.',
-      );
-
-    // JWT 발급 (access/refresh token)
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '1h',
-    });
-
-    return { accessToken };
   }
 }

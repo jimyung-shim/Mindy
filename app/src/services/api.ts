@@ -15,7 +15,7 @@ export async function signup(dto: { email: string; password: string; nickname: s
 }
 
 export async function login(dto: { email: string; password: string }): Promise<AuthResponse> {
-  const res = await fetch(`${base}/users/login`, {
+  const res = await fetch(`${base}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dto),
