@@ -15,4 +15,10 @@ export class UserController {
     // 여기서는 토큰 없이 생성 결과만 반환 (id, email, nickname, createdAt)
     return user;
   }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() dto: { email: string; password: string }) {
+    return this.userService.login(dto.email, dto.password);
+  }
 }
