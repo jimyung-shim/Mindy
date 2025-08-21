@@ -6,11 +6,12 @@ type AuthState = {
   accessToken?: string;
   refreshToken?: string;
   userId?: string;
+  nickname?: string;
   hydrated: boolean;
   login(email: string, password: string): Promise<void>;
   logout(): Promise<void>;
   hydrate(): Promise<void>;
-  setTokens(t: { accessToken: string; refreshToken: string; userId: string }): Promise<void>;
+  setTokens(t: { accessToken: string; refreshToken: string; userId: string, nickname: string }): Promise<void>;
 };
 
 export const useAuth = create<AuthState>((set) => ({
@@ -20,10 +21,11 @@ export const useAuth = create<AuthState>((set) => ({
     // 백엔드 응답을 문자열로 강제 변환해 저장 (undefined 방지)
     const accessToken = String(r.accessToken);
     const refreshToken = r.refreshToken != null ? String(r.refreshToken) : undefined;
-    const userId = String((r as any).userId ?? (r as any).sub); // 서버 쪽 필드명에 맞게
+    const userId = String(r.userId); // 서버 쪽 필드명에 맞게
+    const nickname = String(r.nickname);
 
     await saveTokens({ accessToken, refreshToken, userId });
-    set({ accessToken, refreshToken, userId });
+    set({ accessToken, refreshToken, userId, nickname });
   },
 
   async logout() {

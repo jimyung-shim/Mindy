@@ -25,7 +25,7 @@ export class AuthService {
     return user;
   }
 
-  private async issueTokens(user: Pick<User, 'id' | 'email'>) {
+  private async issueTokens(user: Pick<User, 'id' | 'email' | 'nickname'>) {
     // access 토큰 발급
     const accessToken = await this.jwt.signAsync(
       { sub: user.id, email: user.email },
@@ -46,7 +46,12 @@ export class AuthService {
       expiresAt: new Date(Date.now() + expDays * 24 * 60 * 60 * 60 * 1000),
     });
 
-    return { accessToken, refreshToken: rawRefresh };
+    return {
+      accessToken,
+      refreshToken: rawRefresh,
+      userId: user.id,
+      nickname: user.nickname,
+    };
   }
 
   // 로그인

@@ -1,6 +1,6 @@
 import { authedFetch } from './http';
 
-export type AuthResponse = { accessToken: string; refreshToken: string; userId: string };
+export type AuthResponse = { accessToken: string; refreshToken: string; userId: string, nickname: string };
 
 export async function signup(dto: { email: string; password: string; nickname: string }): Promise<any> {
   const res = await authedFetch('/users/signup', {

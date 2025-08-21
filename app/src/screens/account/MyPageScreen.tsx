@@ -18,7 +18,8 @@ type Props = {
 export default function MyPageScreen({ navigation }: Props) {
   const { logout } = useAuth();
   // TODO: 로그인 후 사용자 프로필 상태에서 가져오세요.
-  const displayName = '김○○';
+  const { nickname } = useAuth();
+  const displayName = nickname ?? '김○○';
 
   const onEditProfile = useCallback(() => {
     navigation.navigate('ProfileEdit'); // 존재하는 라우트명으로 변경
