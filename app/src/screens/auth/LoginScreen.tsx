@@ -7,12 +7,15 @@ import { colors } from '../../theme/colors';
 import { isEmail, minLen } from '../../utils/validators';
 import { login } from '../../services/api';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAuth } from '../../stores/authStore';
+import MyPageScreen from '../account/MyPageScreen';
 
 type RootStack = {
   Persona: undefined; // existing
   Login: undefined;
   Signup: undefined;
   Chat: { personaId?: string; personaLabel?: string; personaImage?: any } | undefined;
+  Mypage: undefined;
 };
 
 type Props = NativeStackScreenProps<RootStack, 'Login'>;
@@ -22,6 +25,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  const { login: doLogin } = useAuth();
 
   const validate = () => {
     const e: typeof errors = {};
@@ -35,10 +40,10 @@ export default function LoginScreen({ navigation }: Props) {
     if (!validate()) return;
     try {
       setLoading(true);
-      const r = await login({ email, password });
+      await doLogin(email, password);
       // TODO: store tokens securely (expo-secure-store)
       Alert.alert('로그인 성공', '환영합니다!');
-      navigation.replace('Persona');
+      navigation.replace('Mypage');
     } catch (err: any) {
       Alert.alert('로그인 실패', err?.message ?? '서버 오류');
     } finally {
