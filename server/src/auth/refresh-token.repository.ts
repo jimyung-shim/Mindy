@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RefreshToken } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class RefreshTokenRepository {
@@ -26,6 +27,17 @@ export class RefreshTokenRepository {
         expiresAt: { gt: new Date() },
       },
     });
+  }
+
+  async findMatching(
+    valids: RefreshToken[],
+    raw: string,
+  ): Promise<RefreshToken | null> {
+    for (const t of valids) {
+      const ok = await bcrypt.compare(raw, t.tokenHash);
+      if (ok) return t;
+    }
+    return null;
   }
 
   async revoke(id: string): Promise<RefreshToken> {
