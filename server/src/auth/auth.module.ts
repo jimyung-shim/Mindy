@@ -6,8 +6,12 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { UserRepository } from 'src/user/user.repository';
 import { RefreshTokenRepository } from './refresh-token.repository';
+import { JwtStrategy } from './jwt.strategy';
+import { PassportModule } from '@nestjs/passport';
+
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UserModule, // 유저 조회/검증을 위해
     JwtModule.registerAsync({
       inject: [ConfigService],
@@ -20,7 +24,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository, RefreshTokenRepository],
-  exports: [AuthService],
+  providers: [AuthService, UserRepository, RefreshTokenRepository, JwtStrategy],
+  exports: [AuthService, PassportModule],
 })
 export class AuthModule {}
