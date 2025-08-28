@@ -4,6 +4,8 @@ import Joi, { ObjectSchema } from 'joi';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -17,6 +19,7 @@ const envSchema: ObjectSchema = Joi.object({
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{ ttl: 60, limit: 30 }]), // 1분 30회
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
@@ -27,6 +30,6 @@ const envSchema: ObjectSchema = Joi.object({
     AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
