@@ -5,30 +5,61 @@ import LoginScreen from './src/screens/auth/LoginScreen';
 import SignupScreen from './src/screens/auth/SignupScreen';
 import MyPageScreen from './src/screens/account/MyPageScreen';
 import { useAuth } from './src/stores/authStore';
+import { View, ActivityIndicator } from 'react-native';
 
-export type RootStackParamList = {
+export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
-  Persona: undefined;
-  Chat: undefined;
-  Mypage: undefined;
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+export type AppStackParamList = {
+  Mypage: undefined;
+  // 추후: ProfileEdit, Settings 등 추가
+};
+
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const AppStack = createNativeStackNavigator<AppStackParamList>();
+
+function AuthNavigator() {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+function AppNavigator() {
+  return (
+    <AppStack.Navigator screenOptions={{ headerShown: false }}>
+      <AppStack.Screen name="Mypage" component={MyPageScreen} />
+      {/* App 전용 스크린들을 여기에 추가 */}
+    </AppStack.Navigator>
+  );
+}
+
+function Splash() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ActivityIndicator />
+    </View>
+  );
+}
 
 export default function App() {
   const hydrate = useAuth((s) => s.hydrate);
+  const hydrated = useAuth((s) => s.hydrated);
+  const accessToken = useAuth((s) => s.accessToken);
+
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
-  
+
+  if (!hydrated) return <Splash />;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Mypage" component={MyPageScreen}/>
-      </Stack.Navigator>
+      {accessToken ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 }
