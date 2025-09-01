@@ -47,13 +47,60 @@ export default function SignupScreen({ navigation }: Props) {
     }
   };
 
+  // 재입력한 비밀번호 일치 상태 계산
+  const showMatchStatus = confirm.length > 0;
+  const isMatch = password.length > 0 && password === confirm;
+
   return (
     <ScreenContainer title="회원가입" subtitle="계정을 만들어 시작해 보세요">
-      <AuthInput label="Email" value={email} onChangeText={setEmail} placeholder="이메일 입력" keyboardType="email-address" error={errors.email} />
-      <AuthInput label="아이디" value={nickname} onChangeText={setNickname} placeholder="아이디 입력 (2자 이상)" autoCapitalize="none" error={errors.nickname} />
-      <AuthInput label="비밀번호" value={password} onChangeText={setPassword} placeholder="비밀번호 입력 (8자 이상)" secureTextEntry error={errors.password} />
-      <AuthInput label="비밀번호 확인" value={confirm} onChangeText={setConfirm} placeholder="비밀번호 재입력" secureTextEntry error={errors.confirm} />
-      <PrimaryButton title={loading ? '처리 중…' : '회원가입'} onPress={onSubmit} loading={loading} />
+      {/*이메일 입력창*/}
+      <AuthInput
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="이메일 입력"
+        keyboardType="email-address"
+        error={errors.email}
+      />
+      {/*아이디 또는 닉네임 입력창*/}
+      <AuthInput
+        label="아이디"
+        value={nickname}
+        onChangeText={setNickname}
+        placeholder="아이디 입력 (2자 이상)"
+        autoCapitalize="none"
+        error={errors.nickname}
+      />
+      {/*비밀번호 입력창*/}
+      <AuthInput 
+        label="비밀번호"
+        value={password}
+        onChangeText={setPassword}
+        placeholder="비밀번호 입력 (8자 이상)"
+        secureTextEntry
+        error={errors.password}
+      />
+
+      {/*비밀번호 재입력창*/}
+      <AuthInput
+        label="비밀번호 확인"
+        value={confirm}
+        onChangeText={setConfirm}
+        placeholder="비밀번호 재입력"
+        secureTextEntry
+        error={errors.confirm}
+      />
+      {showMatchStatus && (
+        <Text style={[styles.matchMsg, isMatch ? styles.matchOk : styles.matchBad]}>
+          {isMatch ? '비밀번호 일치' : '비밀번호 불일치'}
+        </Text>
+      )}
+      
+      <PrimaryButton
+        title={loading ? '처리 중…' : '회원가입'}
+        onPress={onSubmit}
+        loading={loading}
+      />
 
       <View style={styles.row}>
         <Text style={styles.muted}>이미 계정이 있나요?</Text>
@@ -69,4 +116,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
   muted: { color: colors.textMuted },
   link: { color: colors.primary, fontWeight: '700' },
+  matchMsg: { marginTop: -6, marginBottom: 8, fontSize: 12 },
+  matchOk: { color: colors.success, fontWeight: '600' },
+  matchBad: { color: colors.danger, fontWeight: '600' },
 });
