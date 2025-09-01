@@ -21,3 +21,9 @@ export async function login(dto: { email: string; password: string }): Promise<A
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+export async function getMe(): Promise<{ userId: string | null; email: string | null }> {
+  const res = await authedFetch('/users/me', { method: 'GET' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}

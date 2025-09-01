@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../../stores/authStore';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import MyInfoCard from '../../components/MyInfoCard';
 
 type Props = {
   navigation: any;
@@ -101,6 +102,10 @@ export default function MyPageScreen({ navigation }: Props) {
         <Pressable style={styles.editBtn} onPress={onEditProfile}>
           <Text style={styles.editBtnText}>편집하기</Text>
         </Pressable>
+      </View>
+
+      <View style={{ paddingHorizontal: 12, marginBottom: 8 }}>
+        <MyInfoCard />
       </View>
 
       <View style={styles.divider} />
