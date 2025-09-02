@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PersonaController } from './persona/persona.controller';
+import { PersonaService } from './persona/persona.service';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -29,7 +31,7 @@ const envSchema: ObjectSchema = Joi.object({
     UserModule,
     AuthModule,
   ],
-  controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  controllers: [PersonaController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, PersonaService],
 })
 export class AppModule {}
