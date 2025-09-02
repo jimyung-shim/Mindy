@@ -28,8 +28,8 @@ export async function loadTokens() {
 }
 export async function clearTokens() {
   await Promise.all([
-    await SecureStore.deleteItemAsync(K.access),
-    await SecureStore.deleteItemAsync(K.refresh),
-    await SecureStore.deleteItemAsync(K.userId),
+    SecureStore.deleteItemAsync(K.access),
+    SecureStore.deleteItemAsync(K.refresh),
+    SecureStore.deleteItemAsync(K.userId),
   ]);
 }
