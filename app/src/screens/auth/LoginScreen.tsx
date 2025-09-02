@@ -9,9 +9,10 @@ import { login } from '../../services/api';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../../stores/authStore';
 import MyPageScreen from '../account/MyPageScreen';
+import PersonaSelectScreen from '../persona/PersonaSelectScreen';
 
 type RootStack = {
-  Persona: undefined; // existing
+  PersonaSelect: undefined; // existing
   Login: undefined;
   Signup: undefined;
   Chat: { personaId?: string; personaLabel?: string; personaImage?: any } | undefined;
@@ -43,7 +44,7 @@ export default function LoginScreen({ navigation }: Props) {
       await doLogin(email, password);
       // TODO: store tokens securely (expo-secure-store)
       Alert.alert('로그인 성공', '환영합니다!');
-      navigation.replace('Mypage');
+      navigation.replace('PersonaSelect');
     } catch (err: any) {
       Alert.alert('로그인 실패', err?.message ?? '서버 오류');
     } finally {

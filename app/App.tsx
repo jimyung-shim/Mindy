@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/auth/LoginScreen';
 import SignupScreen from './src/screens/auth/SignupScreen';
 import MyPageScreen from './src/screens/account/MyPageScreen';
+import PersonaSelectScreen from './src/screens/persona/PersonaSelectScreen';
 import { useAuth } from './src/stores/authStore';
 import { View, ActivityIndicator } from 'react-native';
 
@@ -14,6 +15,7 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Mypage: undefined;
+  PersonaSelect: undefined;
   // 추후: ProfileEdit, Settings 등 추가
 };
 
@@ -33,6 +35,7 @@ function AppNavigator() {
   return (
     <AppStack.Navigator screenOptions={{ headerShown: false }}>
       <AppStack.Screen name="Mypage" component={MyPageScreen} />
+      <AppStack.Screen name="PersonaSelect" component={PersonaSelectScreen} />
       {/* App 전용 스크린들을 여기에 추가 */}
     </AppStack.Navigator>
   );
