@@ -37,6 +37,28 @@ export type CategoryKey =
   | 'FINANCE_BUSINESS'
   | 'PET_LOSS';
 
+// 파일 상단/하단 어디든 추가
+export const CATEGORY_KEYS = [
+  'RELATION_BULLYING',
+  'SELF_PERSONALITY',
+  'MENTAL_HEALTH',
+  'FAMILY',
+  'WORKPLACE',
+  'PARENTING',
+  'CAREER',
+  'ROMANCE',
+  'BREAKUP_DIVORCE',
+  'STUDY',
+  'MARRIAGE',
+  'LGBT',
+  'PHYSICAL_HEALTH',
+  'SEX_CRIME',
+  'APPEARANCE',
+  'SEX_LIFE',
+  'FINANCE_BUSINESS',
+  'PET_LOSS',
+] as const;
+
 export const personaLabelKorean: Record<PersonaKey, string> = {
   ECONOMY: '경제',
   JOB: '직업',

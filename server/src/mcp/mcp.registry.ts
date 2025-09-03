@@ -10,9 +10,11 @@ export class McpRegistryService {
   constructor(
     @Optional()
     @Inject(MCP_TOOL_TOKEN)
-    tools: McpToolProvider[] = [],
+    tools?: McpToolProvider | McpToolProvider[],
   ) {
-    for (const t of tools) this.register(t);
+    const arr = !tools ? [] : Array.isArray(tools) ? tools : [tools];
+
+    for (const t of arr) this.register(t);
   }
 
   register(tool: McpToolProvider) {

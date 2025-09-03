@@ -8,8 +8,10 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { PersonaController } from './persona/persona.controller';
 import { PersonaService } from './persona/persona.service';
-import { McpModule } from '@nestjs-mcp/server';
+//import { McpModule } from '@nestjs-mcp/server';
 import { PersonaToolModule } from './persona/tool/persona-tool.module';
+import { AgentService } from './agent/agent.service';
+import { McpModule } from './mcp/mcp.module';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -42,7 +44,7 @@ const envSchema: ObjectSchema = Joi.object({
       useClass: ThrottlerGuard,
     },
     PersonaService,
-    //AgentService,
+    AgentService,
   ],
 })
 export class AppModule {}
