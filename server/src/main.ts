@@ -2,9 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
+import { join } from 'node:path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: false });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: false,
+  });
   app.use(helmet());
 
   const origins = process.env.CORS_ORIGIN?.split(',')
@@ -23,6 +27,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.useStaticAssets(join(__dirname, '..', 'public'), { prefix: '/static/' });
 
   await app.listen(process.env.PORT ?? 3000);
 }
