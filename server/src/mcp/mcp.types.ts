@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-export type McpToolRun = (input: unknown) => Promise<unknown>;
+export type McpToolRun<T> = (input: T) => Promise<unknown>;
 
-export interface McpToolProvider {
+export interface McpToolProvider<T = unknown> {
   name: string;
   description: string;
-  inputSchema: z.ZodTypeAny; // zod 스키마
-  run: McpToolRun; // 실제 실행
+  inputSchema: z.ZodType<T>; // zod 스키마
+  run: McpToolRun<T>; // 실제 실행
 }
