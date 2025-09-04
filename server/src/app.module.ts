@@ -21,6 +21,7 @@ const envSchema: ObjectSchema = Joi.object({
   JWT_ACCESS_EXPIRES: Joi.string().default('15m'),
   JWT_REFRESH_EXPIRES_DAYS: Joi.number().integer().min(1).default(7),
   BCRYPT_SALT_ROUNDS: Joi.number().integer().min(8).default(12),
+  PERSONA_ASSIGN_STRATEGY: Joi.string().required(),
 });
 
 @Module({

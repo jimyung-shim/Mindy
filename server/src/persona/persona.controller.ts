@@ -20,7 +20,7 @@ export class PersonaController {
   async assign(@Body() dto: AssignPersonaDto) {
     // 실제 구현은 OpenAI Agents SDK 경유 MCP 호출 예정.
     // 현재는 레지스트리의 assign_persona 툴을 직접 실행하는 AgentService를 통해 결과를 반환.
-    const result = await this.agent.assignViaAgent(dto.categories);
+    const result = await this.agent.assign(dto.categories);
     return result;
   }
 }
