@@ -1,11 +1,20 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import { usePersona } from '../../stores/personaStore';
 import { colors } from '../../theme/colors';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const { personaLabel, imageUrl, reason } = usePersona();
+  const navigation = useNavigation<any>();
+
+  useEffect(() => {
+    if (!imageUrl) {
+      // 페르소나 미배정 상태면 곧장 선택 화면으로 유도
+      navigation.navigate('PersonaSelect');
+    }
+  }, [imageUrl, navigation]);
 
   return (
     <ScreenContainer title="홈" subtitle="오늘도 가볍게 마음 체크하기">

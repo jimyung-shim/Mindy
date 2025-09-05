@@ -13,6 +13,7 @@ import ChatScreen from './src/screens/chat/ChatScreen';
 import ReservationScreen from './src/screens/reservation/ReservationScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from './src/theme/colors';
+import { usePersona } from './src/stores/personaStore';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -66,8 +67,9 @@ function Tabs() {
 }
 
 function AppNavigator() {
+  const hasPersona = usePersona((s) => !!s.personaKey);
   return (
-    <AppStack.Navigator screenOptions={{ headerShown: false }}>
+    <AppStack.Navigator screenOptions={{ headerShown: false }} initialRouteName={hasPersona ? 'Tabs' : 'PersonaSelect'}>
       <AppStack.Screen name="Tabs" component={Tabs} />
       <AppStack.Screen name="PersonaSelect" component={PersonaSelectScreen} />
       {/* App 전용 스크린들을 여기에 추가 */}

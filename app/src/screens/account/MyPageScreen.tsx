@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../../stores/authStore';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import MyInfoCard from '../../components/MyInfoCard';
+import { usePersona } from '../../stores/personaStore';
 
 type Props = {
   navigation: any;
@@ -18,6 +19,7 @@ type Props = {
 
 export default function MyPageScreen({ navigation }: Props) {
   const { logout, nickname } = useAuth();
+  const clearPersona = usePersona((s) => s.clearPersona);
   // TODO: 로그인 후 사용자 프로필 상태에서 가져오세요.
   const displayName = nickname ?? '김○○';
 
@@ -34,6 +36,7 @@ export default function MyPageScreen({ navigation }: Props) {
         onPress: async () => {
           try {
             await logout();
+            clearPersona();
             navigation.reset({
               index: 0,
               routes: [{ name: 'Login' }], // 로그인 스택 시작 루트로 변경

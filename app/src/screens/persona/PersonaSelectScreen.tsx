@@ -30,7 +30,7 @@ export default function PersonaSelectScreen({ navigation }: any) {
             reason: result.reason,
             });
             Alert.alert('배정 완료', `${result.personaLabel}\n${result.reason}`);
-            navigation.navigate('HomeTab'); // 탭 라우트 이름으로 이동
+            navigation.navigate('Tabs'); // 탭 라우트 이름으로 이동
         } catch (e: any) {
             Alert.alert('오류', e?.message ?? '배정 실패');
         } finally {
