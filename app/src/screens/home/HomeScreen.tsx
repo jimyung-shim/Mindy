@@ -4,10 +4,14 @@ import ScreenContainer from '../../components/ScreenContainer';
 import { usePersona } from '../../stores/personaStore';
 import { colors } from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { AppTabParamList } from '../../navigation/types';
 
-export default function HomeScreen() {
+type Props = BottomTabScreenProps<AppTabParamList, 'HomeTab'>;
+
+export default function HomeScreen({ navigation }: Props) {
   const { personaLabel, imageUrl, reason } = usePersona();
-  const navigation = useNavigation<any>();
+  //const navigation = useNavigation<Props>();
 
   useEffect(() => {
     if (!imageUrl) {

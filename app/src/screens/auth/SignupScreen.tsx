@@ -8,8 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import ControlledAuthInput from '../../components/form/ControlledAuthInput';
 import { signupSchema, type SignupInput } from '../../schemas/auth';
 import { signup } from '../../services/api';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../../navigation/types';
 
-export default function SignupScreen({ navigation }: any) {
+type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
+
+export default function SignupScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm<SignupInput>({

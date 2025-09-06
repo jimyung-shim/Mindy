@@ -7,12 +7,14 @@ import PrimaryButton from '../../components/PrimaryButton';
 import { CATEGORIES, CategoryKey } from '../../services/persona';
 import { assignPersona } from '../../services/api';
 import { usePersona } from '../../stores/personaStore';
-// 추후 서버 연동:
-// import { assignPersona } from '../../services/api';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AppStackParamList } from '../../navigation/types';
+
+type Props = NativeStackScreenProps<AppStackParamList, 'PersonaSelect'>;
 
 const MAX = 4;
 
-export default function PersonaSelectScreen({ navigation }: any) {
+export default function PersonaSelectScreen({ navigation }: Props) {
     const [selected, setSelected] = useState<CategoryKey[]>([]);
     const [loading, setLoading] = useState(false);
     const setPersona = usePersona((s) => s.setPersona);

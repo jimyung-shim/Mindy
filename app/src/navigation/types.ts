@@ -10,9 +10,15 @@ export type AppTabParamList = {
     ChatTab: undefined;
     ReserveTab: undefined;
     MypageTab: undefined;
+    PersonaSelect: undefined;
 };
 
 export type AppStackParamList = {
     Tabs: NavigatorScreenParams<AppTabParamList> | undefined;
     PersonaSelect: undefined;
+};
+
+export type RootStackParamList = {
+    Auth: NavigatorScreenParams<AuthStackParamList>;
+    App: NavigatorScreenParams<AppStackParamList>;
 };

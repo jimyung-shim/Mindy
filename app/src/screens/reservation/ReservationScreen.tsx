@@ -2,8 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import { colors } from '../../theme/colors';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { AppTabParamList } from '../../navigation/types';
 
-export default function ReservationScreen() {
+type Props = BottomTabScreenProps<AppTabParamList, 'ReserveTab'>;
+
+export default function ReservationScreen({ navigation }: Props) {
   return (
     <ScreenContainer title="예약" subtitle="상담 예약을 진행해 보세요">
       <View style={styles.box}>

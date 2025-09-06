@@ -8,8 +8,12 @@ import ControlledAuthInput from '../../components/form/ControlledAuthInput';
 import { loginSchema, type LoginInput } from '../../schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../../navigation/types';
 
-export default function LoginScreen({ navigation }: any) {
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+
+export default function LoginScreen({ navigation }: Props) {
   const { login: doLogin } = useAuth();
   const [loading, setLoading] = useState(false);
 
