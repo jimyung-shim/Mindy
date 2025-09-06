@@ -1,61 +1,41 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import AuthInput from '../../components/AuthInput';
 import PrimaryButton from '../../components/PrimaryButton';
 import { colors } from '../../theme/colors';
-import { isEmail, minLen } from '../../utils/validators';
-import { login } from '../../services/api';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../../stores/authStore';
-import MyPageScreen from '../account/MyPageScreen';
-import PersonaSelectScreen from '../persona/PersonaSelectScreen';
+import ControlledAuthInput from '../../components/form/ControlledAuthInput';
+import { loginSchema, type LoginInput } from '../../schemas/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-type RootStack = {
-  PersonaSelect: undefined; // existing
-  Login: undefined;
-  Signup: undefined;
-  Chat: { personaId?: string; personaLabel?: string; personaImage?: any } | undefined;
-  Mypage: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStack, 'Login'>;
-
-export default function LoginScreen({ navigation }: Props) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-
+export default function LoginScreen({ navigation }: any) {
   const { login: doLogin } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const validate = () => {
-    const e: typeof errors = {};
-    if (!isEmail(email)) e.email = '유효한 이메일을 입력하세요';
-    if (!minLen(password, 8)) e.password = '비밀번호는 8자 이상';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  const { control, handleSubmit } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-  const onSubmit = async () => {
-    if (!validate()) return;
+  const onSubmit = handleSubmit(async (data) => {
     try {
       setLoading(true);
-      await doLogin(email, password);
-      // TODO: store tokens securely (expo-secure-store)
+      await doLogin(data.email, data.password);
       Alert.alert('로그인 성공', '환영합니다!');
-      navigation.replace('PersonaSelect');
+      // 내비게이션 전환은 RootNavigator가 accessToken 변화를 감지해서 처리합니다.
     } catch (err: any) {
       Alert.alert('로그인 실패', err?.message ?? '서버 오류');
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   return (
     <ScreenContainer title=" " subtitle=" ">
-      <AuthInput label="Email" value={email} onChangeText={setEmail} placeholder="이메일 입력" keyboardType="email-address" error={errors.email} />
-      <AuthInput label="비밀번호" value={password} onChangeText={setPassword} placeholder="비밀번호 입력" secureTextEntry error={errors.password} />
+      <ControlledAuthInput control={control} name="email" label="Email" placeholder="이메일 입력" keyboardType="email-address" />
+      <ControlledAuthInput control={control} name="password" label="비밀번호" placeholder="비밀번호 입력" secureTextEntry />
+
       <PrimaryButton title={loading ? '로그인 중…' : '로그인'} onPress={onSubmit} loading={loading} />
 
       <View style={styles.row}>
