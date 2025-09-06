@@ -11,13 +11,19 @@ import {
 import { useAuth } from '../../stores/authStore';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import MyInfoCard from '../../components/MyInfoCard';
+import { usePersona } from '../../stores/personaStore';
 
+// *** 마이페이지의 모든 기능들 완성 후에 주석 풀고 아래 Props 지우기 ***
+// import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+// import type { AppTabParamList } from '../../navigation/types';
+// type Props = NativeStackScreenProps<AppTabParamList, 'MypageTab'>;
 type Props = {
   navigation: any;
 };
 
 export default function MyPageScreen({ navigation }: Props) {
   const { logout, nickname } = useAuth();
+  const clearPersona = usePersona((s) => s.clearPersona);
   // TODO: 로그인 후 사용자 프로필 상태에서 가져오세요.
   const displayName = nickname ?? '김○○';
 
@@ -34,6 +40,7 @@ export default function MyPageScreen({ navigation }: Props) {
         onPress: async () => {
           try {
             await logout();
+            clearPersona();
             navigation.reset({
               index: 0,
               routes: [{ name: 'Login' }], // 로그인 스택 시작 루트로 변경

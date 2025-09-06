@@ -1,43 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import AuthInput from '../../components/AuthInput';
 import PrimaryButton from '../../components/PrimaryButton';
 import { colors } from '../../theme/colors';
-import { isEmail, minLen } from '../../utils/validators';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import ControlledAuthInput from '../../components/form/ControlledAuthInput';
+import { signupSchema, type SignupInput } from '../../schemas/auth';
 import { signup } from '../../services/api';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../../navigation/types';
 
-type RootStack = {
-  Signup: undefined;
-  Login: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStack, 'Signup'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 
 export default function SignupScreen({ navigation }: Props) {
-  const [email, setEmail] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; nickname?: string; password?: string; confirm?: string }>({});
 
-  const validate = () => {
-    const e: typeof errors = {};
-    if (!isEmail(email)) e.email = '유효한 이메일을 입력하세요';
-    if (!minLen(nickname, 2)) e.nickname = '닉네임은 2자 이상';
-    if (!minLen(password, 8)) e.password = '비밀번호는 8자 이상';
-    if (password !== confirm) e.confirm = '비밀번호가 일치하지 않습니다';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  const { control, handleSubmit, watch, formState: { errors } } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { email: '', nickname: '', password: '', confirm: '' },
+  });
 
-  const onSubmit = async () => {
-    if (!validate()) return;
+  const password = watch('password');
+  const confirm = watch('confirm');
+  const isMatch = password.length > 0 && password === confirm;
+
+  const onSubmit = handleSubmit(async (data) => {
     try {
       setLoading(true);
-      await signup({ email, password, nickname });
+      await signup({ email: data.email, password: data.password, nickname: data.nickname });
       Alert.alert('회원가입 완료', '로그인해 주세요');
       navigation.replace('Login');
     } catch (err: any) {
@@ -45,68 +36,28 @@ export default function SignupScreen({ navigation }: Props) {
     } finally {
       setLoading(false);
     }
-  };
-
-  // 재입력한 비밀번호 일치 상태 계산
-  const showMatchStatus = confirm.length > 0;
-  const isMatch = password.length > 0 && password === confirm;
+  });
 
   return (
     <ScreenContainer title="회원가입" subtitle="계정을 만들어 시작해 보세요">
-      {/*이메일 입력창*/}
-      <AuthInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        placeholder="이메일 입력"
-        keyboardType="email-address"
-        error={errors.email}
-      />
-      {/*아이디 또는 닉네임 입력창*/}
-      <AuthInput
-        label="아이디"
-        value={nickname}
-        onChangeText={setNickname}
-        placeholder="아이디 입력 (2자 이상)"
-        autoCapitalize="none"
-        error={errors.nickname}
-      />
-      {/*비밀번호 입력창*/}
-      <AuthInput 
-        label="비밀번호"
-        value={password}
-        onChangeText={setPassword}
-        placeholder="비밀번호 입력 (8자 이상)"
-        secureTextEntry
-        error={errors.password}
-      />
+      <ControlledAuthInput control={control} name="email" label="Email" placeholder="이메일 입력" keyboardType="email-address" />
+      <ControlledAuthInput control={control} name="nickname" label="아이디" placeholder="아이디 입력 (2자 이상)" />
+      <ControlledAuthInput control={control} name="password" label="비밀번호" placeholder="비밀번호 입력 (8자 이상)" secureTextEntry />
+      <ControlledAuthInput control={control} name="confirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry />
 
-      {/*비밀번호 재입력창*/}
-      <AuthInput
-        label="비밀번호 확인"
-        value={confirm}
-        onChangeText={setConfirm}
-        placeholder="비밀번호 재입력"
-        secureTextEntry
-        error={errors.confirm}
-      />
-      {showMatchStatus && (
+      {confirm.length > 0 && (
         <Text style={[styles.matchMsg, isMatch ? styles.matchOk : styles.matchBad]}>
-          {isMatch ? '비밀번호 일치' : '비밀번호 불일치'}
+            {isMatch ? '비밀번호 일치' : '비밀번호 불일치'}
         </Text>
       )}
-      
-      <PrimaryButton
-        title={loading ? '처리 중…' : '회원가입'}
-        onPress={onSubmit}
-        loading={loading}
-      />
+
+      <PrimaryButton title={loading ? '처리 중…' : '회원가입'} onPress={onSubmit} loading={loading} />
 
       <View style={styles.row}>
         <Text style={styles.muted}>이미 계정이 있나요?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.link}> 로그인</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.link}> 로그인</Text>
+          </TouchableOpacity>
       </View>
     </ScreenContainer>
   );
@@ -117,6 +68,6 @@ const styles = StyleSheet.create({
   muted: { color: colors.textMuted },
   link: { color: colors.primary, fontWeight: '700' },
   matchMsg: { marginTop: -6, marginBottom: 8, fontSize: 12 },
-  matchOk: { color: colors.success, fontWeight: '600' },
-  matchBad: { color: colors.danger, fontWeight: '600' },
+  matchOk: { color: '#10b981', fontWeight: '600' },
+  matchBad: { color: '#ef4444', fontWeight: '600' },
 });

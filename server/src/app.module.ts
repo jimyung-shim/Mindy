@@ -6,6 +6,12 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { PersonaController } from './persona/persona.controller';
+import { PersonaService } from './persona/persona.service';
+//import { McpModule } from '@nestjs-mcp/server';
+import { PersonaToolModule } from './persona/tool/persona-tool.module';
+import { AgentService } from './agent/agent.service';
+import { McpModule } from './mcp/mcp.module';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -15,6 +21,7 @@ const envSchema: ObjectSchema = Joi.object({
   JWT_ACCESS_EXPIRES: Joi.string().default('15m'),
   JWT_REFRESH_EXPIRES_DAYS: Joi.number().integer().min(1).default(7),
   BCRYPT_SALT_ROUNDS: Joi.number().integer().min(8).default(12),
+  PERSONA_ASSIGN_STRATEGY: Joi.string().required(),
 });
 
 @Module({
@@ -28,8 +35,17 @@ const envSchema: ObjectSchema = Joi.object({
     PrismaModule,
     UserModule,
     AuthModule,
+    McpModule,
+    PersonaToolModule,
   ],
-  controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  controllers: [PersonaController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    PersonaService,
+    AgentService,
+  ],
 })
 export class AppModule {}
