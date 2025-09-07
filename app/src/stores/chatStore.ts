@@ -22,6 +22,9 @@ type ConversationState = {
   setTyping: (conversationId: string, on: boolean) => void;
   resetConv: (conversationId: string) => void;
   removeConversation: (id: string) => void;
+  renameConversation: (tempId: string, newId: string) => void;
+  setMessagesForConv: (conversationId: string, messages: ChatMessage[]) => void;
+
 };
 
 export const useChatStore = create<ConversationState>((set, get) => ({
@@ -86,4 +89,25 @@ export const useChatStore = create<ConversationState>((set, get) => ({
       messagesByConv: rest,
     };
   }),
+
+  renameConversation: (tempId: string, newId: string) => {
+    set((state) => {
+      const newMessagesByConv = { ...state.messagesByConv };
+      const messages = newMessagesByConv[tempId];
+      if (messages) {
+        delete newMessagesByConv[tempId];
+        newMessagesByConv[newId] = messages;
+      }
+      return { messagesByConv: newMessagesByConv };
+    });
+  },
+
+  setMessagesForConv: (conversationId: string, messages: ChatMessage[]) => {
+    set((state) => ({
+      messagesByConv: {
+        ...state.messagesByConv,
+        [conversationId]: messages,
+      },
+    }));
+  },
 }));

@@ -24,18 +24,6 @@ export class ChatGateway implements OnGatewayConnection {
     // ping/pong은 socket.io 기본 제공
   }
 
-  @SubscribeMessage('conversation:open')
-  async onOpen(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload?: { title?: string },
-  ) {
-    const userId = client.user?.userId;
-    if (!userId) throw new UnauthorizedException('NO_USER_IN_SOCKET');
-
-    const conv = await this.chat.openConversation(userId, payload?.title);
-    client.emit('conversation:opened', { conversationId: String(conv._id) });
-  }
-
   @SubscribeMessage('message:create')
   async onCreate(
     @ConnectedSocket() client: Socket,
@@ -44,7 +32,17 @@ export class ChatGateway implements OnGatewayConnection {
     const userId = client.user?.userId;
     if (!userId) throw new UnauthorizedException('NO_USER_IN_SOCKET');
 
-    const { conversationId, clientMsgId, text } = body;
+    let { conversationId, clientMsgId, text } = body;
+
+    if (conversationId === 'new') {
+      const newConv = await this.chat.openConversation(userId);
+      conversationId = String(newConv._id); // 실제 ID로 교체
+      // 클라이언트에게도 새로 생성된 ID를 알려줍니다.
+      client.emit('conversation:created', {
+        tempId: 'new',
+        newId: conversationId,
+      });
+    }
 
     // ack (선점)
     client.emit('message:ack', { conversationId, clientMsgId });

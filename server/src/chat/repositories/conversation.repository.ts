@@ -34,4 +34,8 @@ export class ConversationRepository {
   async deleteMine(userId: string, conversationId: Types.ObjectId) {
     await this.model.deleteOne({ _id: conversationId, userId }).exec();
   }
+
+  async findMineById(userId: string, conversationId: Types.ObjectId) {
+    return this.model.findOne({ _id: conversationId, userId }).lean();
+  }
 }

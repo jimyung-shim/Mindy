@@ -38,6 +38,12 @@ export class ChatController {
     return { items: list };
   }
 
+  @Get(':id/messages')
+  getMessages(@Param('id') id: string, @GetUser() user: RequestUser) {
+    // 본인 소유의 대화방인지 간단히 확인 후 메시지 반환
+    return this.chat.getMessages(user.userId, id);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: string, @GetUser() user: RequestUser) {
     await this.chat.deleteConversation(user.userId, id);

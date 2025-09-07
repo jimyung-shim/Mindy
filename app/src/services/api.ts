@@ -78,3 +78,10 @@ export async function deleteConversation(id: string) {
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{ ok: boolean }>;
 }
+
+// 메시지 로드
+export async function getMessages(conversationId: string) {
+  const res = await authedFetch(`/conversations/${conversationId}/messages`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}

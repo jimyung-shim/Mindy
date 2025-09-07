@@ -6,6 +6,8 @@ import { useChatStore } from '../../stores/chatStore';
 import * as Crypto from 'expo-crypto';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
@@ -19,6 +21,8 @@ export default function ChatScreen({ route }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    const { messagesByConv, pushMessage, upsertStreamingAssistant, endStreamingAssistant, setMessagesForConv, renameConversation } = useChatStore();
+    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
     (async () => {
       const socket = await getSocket({
@@ -27,8 +31,14 @@ export default function ChatScreen({ route }: Props) {
         },
       });
 
-      // (선택) 진입 시 대화방 open (서버는 멱등/무해)
-      socket.emit('conversation:open', {});
+      
+      const onCreated = (payload: { tempId: string; newId: string }) => {
+        if (!mounted) return;
+        // 스토어의 임시 ID('new')를 실제 ID로 변경합니다.
+        renameConversation(payload.tempId, payload.newId);
+        // 현재 화면의 라우트 파라미터를 실제 ID로 업데이트합니다.
+        navigation.setParams({ conversationId: payload.newId });
+      };
 
       const onAck = (_: any) => {};
       const onStream = (payload: any) => {
@@ -52,6 +62,8 @@ export default function ChatScreen({ route }: Props) {
       socket.on('message:stream', onStream);
       socket.on('message:complete', onComplete);
       socket.on('message:error', onError);
+      socket.on('conversation:created', onCreated);
+
 
       return () => {
         mounted = false;
@@ -59,6 +71,8 @@ export default function ChatScreen({ route }: Props) {
         socket.off('message:stream', onStream);
         socket.off('message:complete', onComplete);
         socket.off('message:error', onError);
+        socket.off('conversation:created', onCreated);
+
       };
     })();
   }, [conversationId, upsertStreamingAssistant, endStreamingAssistant]);

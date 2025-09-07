@@ -60,7 +60,7 @@ export class ChatService {
 
     try {
       const systemPrompt =
-        '너는 사용자의 마음을 위로하는 심리 상담가야. 답변은 항상 한국어로, 3문장 이내로 간결하게 핵심만 전달해줘.';
+        '너는 사용자의 마음을 위로하는 심리 상담가야. 답변은 항상 한국어로, 1문장 이내로 짧고 간결하게 핵심만 전달해줘. 300토큰 이내로';
       // 3) LLM 스트림 델타 전송
       for await (const delta of this.llm.streamChat(
         text,
@@ -112,5 +112,15 @@ export class ChatService {
     // 2) 본인 소유의 대화방만 삭제
     await this.convRepo.deleteMine(userId, _id);
     return { ok: true };
+  }
+
+  async getMessages(userId: string, conversationId: string) {
+    const convId = new Types.ObjectId(conversationId);
+    // 본인 소유 대화방이 맞는지 확인
+    const conv = await this.convRepo.findMineById(userId, convId);
+    if (!conv) {
+      throw new Error('Conversation not found or access denied');
+    }
+    return this.msgRepo.list(convId, 100); // 최근 100개 메시지
   }
 }

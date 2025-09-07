@@ -52,8 +52,7 @@ export default function ChatListScreen({navigation}: Props) {
   }, [navigation, refreshing]); // refreshing 바뀌면 버튼 상태 갱신
 
   async function onNewChat() {
-    const { conversationId } = await createConversation();
-    navigation.navigate('Chat', { conversationId });
+    navigation.navigate('Chat', { conversationId: 'new' });
   }
 
   function onDelete(id: string) {
