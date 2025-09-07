@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, TextInput, KeyboardAvoidingView, Platform, FlatList, TouchableOpacity, Text } from 'react-native';
 import { getSocket } from '../../services/socket';
 import { useChatStore } from '../../stores/chatStore';
-import { v4 as uuid } from 'uuid';
+import * as Crypto from 'expo-crypto';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 
@@ -73,7 +73,7 @@ export default function ChatScreen({ route }: Props) {
     pushMessage(conversationId, { role: 'user', text, localOnly: true });
 
     const socket = await getSocket();
-    const clientMsgId = uuid();
+    const clientMsgId = await Crypto.randomUUID();
     socket.emit('message:create', { conversationId, clientMsgId, text });
   }
 
@@ -102,7 +102,7 @@ export default function ChatScreen({ route }: Props) {
         renderItem={renderItem}
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
       />
-      <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: '#e5e7eb' }}>
+      <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: '#e5e7eb', marginBottom: 60 }}>
         <TextInput
           value={input}
           onChangeText={setInput}
