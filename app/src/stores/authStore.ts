@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveTokens, clearTokens, loadTokens } from '../services/secure';
-import { login as apiLogin } from '../services/api';
+import type { AuthResponse } from '../services/api';
 
 type Session = {
   accessToken?: string;
@@ -16,8 +16,7 @@ type AuthState = Session & {
 
   // actions
   hydrate: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  setLoggedInData: (data: AuthResponse) => Promise<void>;  logout: () => Promise<void>;
   setTokens: (t: { accessToken: string; refreshToken?: string; userId: string }) => Promise<void>;
   setSession: (s: Partial<Pick<AuthState, 'userId' | 'nickname' | 'accessToken' | 'refreshToken'>>) => void;
 };
@@ -46,16 +45,11 @@ export const useAuth = create<AuthState>()(
         });
       },
 
-      login: async (email, password) => {
-        const r = await apiLogin({ email, password });
-        const accessToken = String(r.accessToken);
-        const refreshToken = r.refreshToken != null ? String(r.refreshToken) : undefined;
-        const userId = String(r.userId);
-        const nickname = String(r.nickname);
+      setLoggedInData: async (r) => {
+        const { accessToken, refreshToken, userId, nickname } = r;
 
         // 토큰은 SecureStore에만 저장
         await saveTokens({ accessToken, refreshToken, userId });
-
         // 상태 반영(토큰 + 비민감 정보)
         set({ accessToken, refreshToken, userId, nickname });
       },

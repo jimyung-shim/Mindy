@@ -10,11 +10,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation/types';
+import { login as apiLogin } from '../../services/api'; 
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
-  const { login: doLogin } = useAuth();
+  const { setLoggedInData } = useAuth(); 
   const [loading, setLoading] = useState(false);
 
   const { control, handleSubmit } = useForm<LoginInput>({
@@ -25,7 +26,8 @@ export default function LoginScreen({ navigation }: Props) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       setLoading(true);
-      await doLogin(data.email, data.password);
+      const response = await apiLogin(data); // [!] API를 직접 호출합니다.
+      await setLoggedInData(response); // [!] 결과를 스토어에 전달합니다.
       Alert.alert('로그인 성공', '환영합니다!');
       // 내비게이션 전환은 RootNavigator가 accessToken 변화를 감지해서 처리합니다.
     } catch (err: any) {
