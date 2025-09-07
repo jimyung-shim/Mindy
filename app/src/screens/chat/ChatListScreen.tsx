@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, RefreshControl, Alert } from 'react-native';
 import { listConversations, createConversation, deleteConversation as apiDeleteConversation } from '../../services/api';
 import { useChatStore } from '../../stores/chatStore';
@@ -34,6 +34,22 @@ export default function ChatListScreen({navigation}: Props) {
   }
 
   useEffect(() => { load(); }, []);
+
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={load}
+          disabled={refreshing}
+          accessibilityLabel="대화목록 새로고침"
+          style={{ paddingHorizontal: 12, paddingVertical: 6, opacity: refreshing ? 0.5 : 1 }}
+        >
+          <Ionicons name="refresh" size={22} /* color={colors.text} */ />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, refreshing]); // refreshing 바뀌면 버튼 상태 갱신
 
   async function onNewChat() {
     const { conversationId } = await createConversation();
