@@ -12,11 +12,11 @@ export class LlmService {
       {
         model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
         stream: true,
-        temperature: 0.7,
         messages: [
           ...(system ? [{ role: 'system' as const, content: system }] : []),
           { role: 'user' as const, content },
         ],
+        max_completion_tokens: 800,
       },
       { signal: abort },
     );

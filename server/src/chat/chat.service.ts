@@ -41,12 +41,11 @@ export class ChatService {
     system?: string,
   ): AsyncGenerator<StreamChunk, void, void> {
     const convId = new Types.ObjectId(conversationId);
-    const uid = new Types.ObjectId(userId);
 
     // 1) 유저 메시지 저장 + 카운트/타임스탬프 갱신
     const userMsg = await this.msgRepo.appendUserMessage(
       convId,
-      uid,
+      userId,
       clientMsgId,
       text,
     );

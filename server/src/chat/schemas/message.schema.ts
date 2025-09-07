@@ -16,7 +16,7 @@ export class Message {
   })
   conversationId!: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', index: true })
+  @Prop({ type: String, index: true })
   userId?: Types.ObjectId;
 
   @Prop({ type: Number, required: true })

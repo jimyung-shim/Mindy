@@ -11,7 +11,7 @@ export class MessageRepository {
 
   async appendUserMessage(
     conversationId: Types.ObjectId,
-    userId: Types.ObjectId,
+    userId: string,
     clientMsgId: string,
     text: string,
   ) {

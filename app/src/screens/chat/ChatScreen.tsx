@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, TextInput, KeyboardAvoidingView, Platform, FlatList, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, KeyboardAvoidingView, Platform, FlatList, TouchableOpacity, Text, Alert } from 'react-native';
 import { getSocket } from '../../services/socket';
 import { useChatStore } from '../../stores/chatStore';
 import * as Crypto from 'expo-crypto';
@@ -45,7 +45,7 @@ export default function ChatScreen({ route }: Props) {
       const onError = (payload: any) => {
         if (!mounted || payload.conversationId !== conversationId) return;
         setSending(false);
-        // TODO: 토스트
+        Alert.alert('오류', payload.message ?? '메시지 전송에 실패했습니다.');
       };
 
       socket.on('message:ack', onAck);
