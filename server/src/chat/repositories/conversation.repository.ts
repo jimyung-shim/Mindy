@@ -30,4 +30,8 @@ export class ConversationRepository {
       { $set: { lastMessageAt: new Date() }, $inc: { messageCount: 1 } },
     );
   }
+
+  async deleteMine(userId: string, conversationId: Types.ObjectId) {
+    await this.model.deleteOne({ _id: conversationId, userId }).exec();
+  }
 }

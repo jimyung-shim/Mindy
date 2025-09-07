@@ -52,4 +52,8 @@ export class MessageRepository {
     if (afterSeq != null) q.seq = { $gt: afterSeq };
     return this.model.find(q).sort({ seq: 1 }).limit(limit).lean();
   }
+
+  async deleteByConversation(conversationId: Types.ObjectId) {
+    await this.model.deleteMany({ conversationId }).exec();
+  }
 }

@@ -104,4 +104,13 @@ export class ChatService {
     if (!this.running.has(socketId)) this.running.set(socketId, new Map());
     return this.running.get(socketId)!;
   }
+
+  async deleteConversation(userId: string, conversationId: string) {
+    const _id = new Types.ObjectId(conversationId);
+    // 1) 메시지 먼저 삭제
+    await this.msgRepo.deleteByConversation(_id);
+    // 2) 본인 소유의 대화방만 삭제
+    await this.convRepo.deleteMine(userId, _id);
+    return { ok: true };
+  }
 }

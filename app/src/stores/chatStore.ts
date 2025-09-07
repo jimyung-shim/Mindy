@@ -21,6 +21,7 @@ type ConversationState = {
   endStreamingAssistant: (conversationId: string, textFinal: string) => void;
   setTyping: (conversationId: string, on: boolean) => void;
   resetConv: (conversationId: string) => void;
+  removeConversation: (id: string) => void;
 };
 
 export const useChatStore = create<ConversationState>((set, get) => ({
@@ -76,4 +77,13 @@ export const useChatStore = create<ConversationState>((set, get) => ({
     delete map[conversationId];
     set({ messagesByConv: map });
   },
+
+  removeConversation: (id) =>
+  set((s) => {
+    const { [id]: _omit, ...rest } = s.messagesByConv;
+    return {
+      conversations: s.conversations.filter((c) => c._id !== id),
+      messagesByConv: rest,
+    };
+  }),
 }));

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
@@ -27,5 +36,11 @@ export class ChatController {
       cursor ? new Date(cursor) : undefined,
     );
     return { items: list };
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: string, @GetUser() user: RequestUser) {
+    await this.chat.deleteConversation(user.userId, id);
+    return { ok: true };
   }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, TouchableOpacity, Text, RefreshControl } from 'react-native';
-import { listConversations, createConversation } from '../../services/api';
+import { View, FlatList, TouchableOpacity, Text, RefreshControl, Alert } from 'react-native';
+import { listConversations, createConversation, deleteConversation as apiDeleteConversation } from '../../services/api';
 import { useChatStore } from '../../stores/chatStore';
 import { useNavigation } from '@react-navigation/native';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -14,6 +14,7 @@ type Props = CompositeScreenProps<
 >;
 export default function ChatListScreen({navigation}: Props) {
   const { conversations, setConversations } = useChatStore();
+  const removeConversation = useChatStore((s) => (s as any).removeConversation);
   const [refreshing, setRefreshing] = useState(false);
 
   async function load() {
@@ -37,6 +38,27 @@ export default function ChatListScreen({navigation}: Props) {
     navigation.navigate('Chat', { conversationId });
   }
 
+  function onDelete(id: string) {
+    Alert.alert('대화 삭제', '이 대화와 안의 메시지가 모두 삭제됩니다. 계속할까요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          // (선택) 낙관적 제거
+          removeConversation(id);
+          try {
+            await apiDeleteConversation(id);
+          } catch (e: any) {
+            // 실패 시 다시 로드(롤백) 또는 토스트
+            await load();
+            Alert.alert('삭제 실패', e?.message ?? '서버 오류');
+          }
+        },
+      },
+    ]);
+  }
+
   return (
     <View style={{ flex: 1, padding: 16, gap: 12 }}>
       <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8, marginTop: 30 }}>
@@ -56,6 +78,10 @@ export default function ChatListScreen({navigation}: Props) {
             <Text style={{ color: '#6b7280' }}>
               {new Date(item.lastMessageAt).toLocaleString()} · {item.messageCount} msgs
             </Text>
+
+            <TouchableOpacity onPress={() => onDelete(item._id)} accessibilityLabel="대화 삭제">
+              <Text style={{ color: '#ef4444', fontWeight: '700' }}>삭제</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
         )}
       />

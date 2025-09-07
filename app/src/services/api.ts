@@ -71,3 +71,10 @@ export async function createConversation(title?: string) {
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{ conversationId: string }>;
 }
+
+// 대화 삭제
+export async function deleteConversation(id: string) {
+  const res = await authedFetch(`/conversations/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ ok: boolean }>;
+}
