@@ -59,10 +59,12 @@ export class ChatService {
     let assembled = '';
 
     try {
+      const systemPrompt =
+        '너는 사용자의 마음을 위로하는 심리 상담가야. 답변은 항상 한국어로, 3문장 이내로 간결하게 핵심만 전달해줘.';
       // 3) LLM 스트림 델타 전송
       for await (const delta of this.llm.streamChat(
         text,
-        system,
+        systemPrompt,
         controller.signal,
       )) {
         assembled += delta;
