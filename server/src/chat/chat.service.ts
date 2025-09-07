@@ -23,12 +23,12 @@ export class ChatService {
   ) {}
 
   async openConversation(userId: string, title?: string) {
-    const conv = await this.convRepo.create(new Types.ObjectId(userId), title);
+    const conv = await this.convRepo.create(userId, title);
     return conv;
   }
 
   async listConversations(userId: string, limit = 20, cursor?: Date) {
-    return this.convRepo.findMine(new Types.ObjectId(userId), limit, cursor);
+    return this.convRepo.findMine(userId, limit, cursor);
   }
 
   // ⬇⬇⬇ 여기 시그니처가 핵심: async * 로 변경, 반환 타입도 AsyncGenerator 로 명시

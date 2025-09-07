@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 export type ConversationDocument = HydratedDocument<Conversation>;
 
 @Schema({ collection: 'conversations', timestamps: true })
 export class Conversation {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  userId!: Types.ObjectId;
+  @Prop({ type: String, required: true, index: true })
+  userId!: string;
 
   @Prop({ type: Number, default: 0 })
   messageCount!: number;

@@ -9,7 +9,7 @@ export class ConversationRepository {
     @InjectModel(Conversation.name) private readonly model: Model<Conversation>,
   ) {}
 
-  async create(userId: Types.ObjectId, title?: string) {
+  async create(userId: string, title?: string) {
     const doc = await this.model.create({
       userId,
       lastMessageAt: new Date(),
@@ -18,7 +18,7 @@ export class ConversationRepository {
     return doc;
   }
 
-  async findMine(userId: Types.ObjectId, limit = 20, cursor?: Date) {
+  async findMine(userId: string, limit = 20, cursor?: Date) {
     const q: any = { userId };
     if (cursor) q.lastMessageAt = { $lt: cursor };
     return this.model.find(q).sort({ lastMessageAt: -1 }).limit(limit).lean();
