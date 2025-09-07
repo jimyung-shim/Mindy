@@ -23,6 +23,7 @@ export default function ChatScreen({ route }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    let socket: Awaited<ReturnType<typeof getSocket>> | null = null; 
 
     async function loadHistory() {
       if (conversationId === 'new' || !mounted) return;
@@ -40,7 +41,7 @@ export default function ChatScreen({ route }: Props) {
     loadHistory(); 
 
     (async () => {
-      const socket = await getSocket({
+      socket = await getSocket({
         onReconnect: () => {
           // 필요 시 재조인/재동기
         },
@@ -82,12 +83,13 @@ export default function ChatScreen({ route }: Props) {
 
       return () => {
         mounted = false;
-        socket.off('message:ack', onAck);
-        socket.off('message:stream', onStream);
-        socket.off('message:complete', onComplete);
-        socket.off('message:error', onError);
-        socket.off('conversation:created', onCreated);
-
+        if(socket){
+          socket.off('message:ack', onAck);
+          socket.off('message:stream', onStream);
+          socket.off('message:complete', onComplete);
+          socket.off('message:error', onError);
+          socket.off('conversation:created', onCreated);
+        }
       };
     })();
   }, [conversationId,navigation,renameConversation,setMessagesForConv, upsertStreamingAssistant, endStreamingAssistant]);
