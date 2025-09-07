@@ -8,6 +8,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getMessages } from '../../services/api';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
@@ -22,6 +23,21 @@ export default function ChatScreen({ route }: Props) {
 
   useEffect(() => {
     let mounted = true;
+
+    async function loadHistory() {
+      if (conversationId === 'new' || !mounted) return;
+      try {
+        const messages = await getMessages(conversationId);
+        if (mounted) {
+          setMessagesForConv(conversationId, messages);
+        }
+      } catch (e) {
+        console.error('Failed to load message history', e);
+        Alert.alert('오류', '이전 대화 내역을 불러오지 못했습니다.');
+      }
+    }
+
+    loadHistory(); 
 
     (async () => {
       const socket = await getSocket({
