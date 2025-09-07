@@ -1,41 +1,28 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { JwtService } from '@nestjs/jwt';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../auth/get-user.decorator';
+import type { RequestUser } from '../auth/get-user.decorator';
 
-// 간단화를 위해 데모용 Auth 가드 (실서비스에선 기존 HTTP JWT 가드 사용)
-function userIdFromAuth(auth?: string) {
-  if (!auth) return null;
-  const token = auth.split(' ')[1];
-  try {
-    const decoded = new JwtService({ secret: process.env.JWT_SECRET! }).decode(
-      token,
-    ) as any;
-    return decoded?.sub || decoded?.userId;
-  } catch {
-    return null;
-  }
-}
-
+@UseGuards(AuthGuard('jwt'))
 @Controller('conversations')
 export class ChatController {
   constructor(private readonly chat: ChatService) {}
 
   @Post()
-  async create(@Body() body: { title?: string }, @Query('auth') auth?: string) {
-    const userId = userIdFromAuth(auth);
-    const conv = await this.chat.openConversation(userId);
+  async create(@Body() body: { title?: string }, @GetUser() user: RequestUser) {
+    const conv = await this.chat.openConversation(user.userId, body.title);
     return { conversationId: String(conv._id) };
   }
 
   @Get()
   async list(
+    @GetUser() user: RequestUser,
     @Query('limit') limit = 20,
     @Query('cursor') cursor?: string,
-    @Query('auth') auth?: string,
   ) {
-    const userId = userIdFromAuth(auth);
     const list = await this.chat.listConversations(
-      userId,
+      user.userId,
       Number(limit),
       cursor ? new Date(cursor) : undefined,
     );

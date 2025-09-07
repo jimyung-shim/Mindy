@@ -16,7 +16,7 @@ export class WsJwtGuard implements CanActivate {
       client.handshake?.headers?.authorization?.split(' ')[1];
     if (!token) throw new UnauthorizedException('NO_TOKEN');
     try {
-      const payload = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as any;
       client.user = { userId: payload.sub || payload.userId };
       return true;
     } catch {
