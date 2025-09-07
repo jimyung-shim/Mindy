@@ -13,16 +13,15 @@ type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
 export default function ChatScreen({ route }: Props) {
   const { conversationId } = route.params;
-  const { messagesByConv, pushMessage, upsertStreamingAssistant, endStreamingAssistant } = useChatStore();
+  const { messagesByConv, pushMessage, upsertStreamingAssistant, endStreamingAssistant, setMessagesForConv, renameConversation } = useChatStore();
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const listRef = useRef<FlatList>(null);
   const messages = messagesByConv[conversationId] ?? [];
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   useEffect(() => {
     let mounted = true;
-    const { messagesByConv, pushMessage, upsertStreamingAssistant, endStreamingAssistant, setMessagesForConv, renameConversation } = useChatStore();
-    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
     (async () => {
       const socket = await getSocket({
@@ -75,7 +74,7 @@ export default function ChatScreen({ route }: Props) {
 
       };
     })();
-  }, [conversationId, upsertStreamingAssistant, endStreamingAssistant]);
+  }, [conversationId,navigation,renameConversation,setMessagesForConv, upsertStreamingAssistant, endStreamingAssistant]);
 
   async function send() {
     if (!input.trim() || sending) return;
