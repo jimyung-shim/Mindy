@@ -7,6 +7,8 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppTabParamList, AppStackParamList } from '../../navigation/types';
+import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../theme/colors';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, 'ChatListTab'>,
@@ -80,7 +82,7 @@ export default function ChatListScreen({navigation}: Props) {
             </Text>
 
             <TouchableOpacity onPress={() => onDelete(item._id)} accessibilityLabel="대화 삭제">
-              <Text style={{ color: '#ef4444', fontWeight: '700' }}>삭제</Text>
+              <Ionicons name="trash-outline" size={22} color={colors.danger}/>
             </TouchableOpacity>
           </TouchableOpacity>
         )}
