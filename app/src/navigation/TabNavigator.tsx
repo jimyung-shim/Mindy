@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/home/HomeScreen';
-import ChatScreen from '../screens/chat/ChatScreen';
+import ChatListScreen from '../screens/chat/ChatListScreen';
 import ReservationScreen from '../screens/reservation/ReservationScreen';
 import MyPageScreen from '../screens/account/MyPageScreen';
 import { colors } from '../theme/colors';
@@ -20,7 +20,7 @@ export default function TabNavigator() {
                 tabBarIcon: ({ color, size }) => {
                     const map: Record<string, keyof typeof Ionicons.glyphMap> = {
                         HomeTab: 'home-outline',
-                        ChatTab: 'chatbubble-ellipses-outline',
+                        ChatListTab: 'chatbubble-ellipses-outline',
                         ReserveTab: 'calendar-outline',
                         MypageTab: 'person-circle-outline',
                     };
@@ -30,7 +30,7 @@ export default function TabNavigator() {
             })}
         >
             <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: '홈' }} />
-            <Tab.Screen name="ChatTab" component={ChatScreen} options={{ title: '채팅' }} />
+            <Tab.Screen name="ChatListTab" component={ChatListScreen} options={{ title: '채팅' }} />
             <Tab.Screen name="ReserveTab" component={ReservationScreen} options={{ title: '예약' }} />
             <Tab.Screen name="MypageTab" component={MyPageScreen} options={{ title: '마이페이지' }} />
         </Tab.Navigator>
