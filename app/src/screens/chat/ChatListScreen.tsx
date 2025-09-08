@@ -79,7 +79,7 @@ export default function ChatListScreen({navigation}: Props) {
 
   return (
     <View style={{ flex: 1, padding: 16, gap: 12 }}>
-      <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8, marginTop: 30 }}>
+      <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8 }}>
         <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>새 대화 시작</Text>
       </TouchableOpacity>
 

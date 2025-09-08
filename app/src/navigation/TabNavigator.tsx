@@ -7,14 +7,15 @@ import ReservationScreen from '../screens/reservation/ReservationScreen';
 import MyPageScreen from '../screens/account/MyPageScreen';
 import { colors } from '../theme/colors';
 import type { AppTabParamList } from './types';
-
+import Header from '../components/common/Header';
 const Tab = createBottomTabNavigator<AppTabParamList>();
 
 export default function TabNavigator() {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                headerShown: false,
+                headerShown: true,
+                header: ({ options }) => <Header title={options.title ?? route.name} />,
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.textMuted,
                 tabBarIcon: ({ color, size }) => {

@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   rowRight: { justifyContent: 'flex-end' },
   avatarWrap: { width: 32, height: 32, marginHorizontal: 6, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#f1f2f6' },
-  bubble: { maxWidth: '78%', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 14 },
+  bubble: { maxWidth: '78%', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 14 , marginTop:5},
   userBubble: { backgroundColor: '#111827', borderBottomRightRadius: 4 },
   botBubble: { backgroundColor: '#eef0ff', borderColor: colors.border, borderWidth: 1, borderBottomLeftRadius: 4 },
   msgText: { fontSize: 15, lineHeight: 20 },

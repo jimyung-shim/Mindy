@@ -21,7 +21,7 @@ export default function HomeScreen({ navigation }: Props) {
   }, [imageUrl, navigation]);
 
   return (
-    <ScreenContainer title="홈" subtitle="오늘도 가볍게 마음 체크하기">
+    <ScreenContainer title="" subtitle="오늘도 가볍게 마음 체크하기">
       <View style={styles.card}>
         <Text style={styles.title}>나의 상담가</Text>
         {imageUrl ? (

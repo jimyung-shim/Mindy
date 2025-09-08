@@ -1,5 +1,5 @@
 import 'react-native-get-random-values';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, TextInput, KeyboardAvoidingView,
   Platform, FlatList, TouchableOpacity,
   Text, Alert, Image, Keyboard, SafeAreaView, StyleSheet} from 'react-native';
@@ -16,6 +16,7 @@ import { colors } from '../../theme/colors';
 import { usePersona } from '../../stores/personaStore';
 import MessageBubble from '../../components/chat/MessageBubble';
 import ChatInputBar from '../../components/chat/ChatInputBar';
+import Header from '../../components/common/Header';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
@@ -111,6 +112,30 @@ export default function ChatScreen({ route }: Props) {
     })();
   }, [conversationId,navigation,renameConversation,setMessagesForConv, upsertStreamingAssistant, endStreamingAssistant]);
 
+  useLayoutEffect(() => {
+  // 부모 네비게이터(TabNavigator)를 찾아 옵션을 설정합니다.
+  const parent = navigation.getParent();
+  parent?.setOptions({
+    tabBarStyle: { display: 'none' },
+  });
+
+  navigation.setOptions({
+    header: () => (
+      <Header
+        title={`대화 #${conversationId.slice(-6)}`}
+        canGoBack
+      />
+    ),
+  });
+
+  // 화면을 벗어날 때(unmount) 원래대로 복구합니다.
+  return () => {
+    parent?.setOptions({
+      tabBarStyle: { display: 'flex' },
+    });
+  };
+}, [navigation, conversationId]);
+
   useEffect(() => {
     const show = Keyboard.addListener('keyboardDidShow', () => scrollToBottom(true));
     return () => show.remove();
@@ -182,7 +207,7 @@ export default function ChatScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg, marginTop: 30 },
+  safe: { flex: 1, backgroundColor: colors.bg},
   list: { flex: 1 },
   listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
 });
