@@ -42,74 +42,72 @@ export default function ChatScreen({ route }: Props) {
     let mounted = true;
     let socket: Awaited<ReturnType<typeof getSocket>> | null = null; 
 
-    async function loadHistory() {
-      if (conversationId === 'new' || !mounted) return;
-      try {
-        const messages = await getMessages(conversationId);
-        if (mounted) {
-          setMessagesForConv(conversationId, messages);
+    const onCreated = (payload: { tempId: string; newId: string }) => {
+      if (!mounted) return;
+      // 스토어의 임시 ID('new')를 실제 ID로 변경합니다.
+      renameConversation(payload.tempId, payload.newId);
+      // 현재 화면의 라우트 파라미터를 실제 ID로 업데이트합니다.
+      navigation.setParams({ conversationId: payload.newId });
+    };
+
+    const onAck = (_: any) => {};
+
+    const onStream = (payload: any) => {
+      if (!mounted || payload.conversationId !== conversationId) return;
+      upsertStreamingAssistant(conversationId, payload.delta ?? '');
+      scrollToBottom(true);
+    };
+
+    const onComplete = (payload: any) => {
+      if (!mounted || payload.conversationId !== conversationId) return;
+      endStreamingAssistant(conversationId, payload.text ?? '');
+      setSending(false);
+      scrollToBottom(true);
+    };
+
+    const onError = (payload: any) => {
+      if (!mounted || payload.conversationId !== conversationId) return;
+      setSending(false);
+      Alert.alert('오류', payload.message ?? '메시지 전송에 실패했습니다.');
+    };
+
+    async function connectAndListen() {
+      // 대화 내역 먼저 불러오기
+      if (conversationId !== 'new' && mounted) {
+        try {
+          const messages = await getMessages(conversationId);
+          if (mounted) setMessagesForConv(conversationId, messages);
+        } catch (e) {
+          console.error('Failed to load message history', e);
+          if (mounted) Alert.alert('오류', '이전 대화 내역을 불러오지 못했습니다.');
         }
-      } catch (e) {
-        console.error('Failed to load message history', e);
-        Alert.alert('오류', '이전 대화 내역을 불러오지 못했습니다.');
       }
-    }
 
-    loadHistory(); 
-
-    (async () => {
-      socket = await getSocket({
-        onReconnect: () => {
-          // 필요 시 재조인/재동기
-        },
-      });
-
-      const onCreated = (payload: { tempId: string; newId: string }) => {
-        if (!mounted) return;
-        // 스토어의 임시 ID('new')를 실제 ID로 변경합니다.
-        renameConversation(payload.tempId, payload.newId);
-        // 현재 화면의 라우트 파라미터를 실제 ID로 업데이트합니다.
-        navigation.setParams({ conversationId: payload.newId });
-      };
-
-      const onAck = (_: any) => {};
-
-      const onStream = (payload: any) => {
-        if (!mounted || payload.conversationId !== conversationId) return;
-        upsertStreamingAssistant(conversationId, payload.delta ?? '');
-        scrollToBottom(true);
-      };
-
-      const onComplete = (payload: any) => {
-        if (!mounted || payload.conversationId !== conversationId) return;
-        endStreamingAssistant(conversationId, payload.text ?? '');
-        setSending(false);
-        scrollToBottom(true);
-      };
-
-      const onError = (payload: any) => {
-        if (!mounted || payload.conversationId !== conversationId) return;
-        setSending(false);
-        Alert.alert('오류', payload.message ?? '메시지 전송에 실패했습니다.');
-      };
-
+      // 소켓 연결 및 리스너 등록
+      socket = await getSocket({ onReconnect: () => {} });
+      if (!mounted) return; // 연결되는 동안 unmount 되면 리스너 등록 방지
+      
+      socket.on('conversation:created', onCreated);
       socket.on('message:ack', onAck);
       socket.on('message:stream', onStream);
       socket.on('message:complete', onComplete);
       socket.on('message:error', onError);
-      socket.on('conversation:created', onCreated);
+    }
 
-      return () => {
-        mounted = false;
-        if(socket){
-          socket.off('message:ack', onAck);
-          socket.off('message:stream', onStream);
-          socket.off('message:complete', onComplete);
-          socket.off('message:error', onError);
-          socket.off('conversation:created', onCreated);
-        }
-      };
-    })();
+    connectAndListen();
+
+    
+
+    return () => {
+      mounted = false;
+      if(socket){
+        socket.off('conversation:created', onCreated);
+        socket.off('message:ack', onAck);
+        socket.off('message:stream', onStream);
+        socket.off('message:complete', onComplete);
+        socket.off('message:error', onError);
+      }
+    };
   }, [conversationId,navigation,renameConversation,setMessagesForConv, upsertStreamingAssistant, endStreamingAssistant]);
 
   useLayoutEffect(() => {
