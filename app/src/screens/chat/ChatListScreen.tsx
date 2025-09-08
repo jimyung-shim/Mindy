@@ -9,6 +9,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppTabParamList, AppStackParamList } from '../../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
+import ConversationListItem from '../../components/chat/ConversationListItem';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, 'ChatListTab'>,
@@ -87,19 +88,11 @@ export default function ChatListScreen({navigation}: Props) {
         keyExtractor={(item) => item._id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={load} />}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <ConversationListItem
+            item={item}
             onPress={() => navigation.navigate('Chat', { conversationId: item._id })}
-            style={{ padding: 14, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, marginBottom: 10 }}
-          >
-            <Text style={{ fontWeight: '700' }}>대화 #{item._id.slice(-6)}</Text>
-            <Text style={{ color: '#6b7280' }}>
-              {new Date(item.lastMessageAt).toLocaleString()} · {item.messageCount} msgs
-            </Text>
-
-            <TouchableOpacity onPress={() => onDelete(item._id)} accessibilityLabel="대화 삭제">
-              <Ionicons name="trash-outline" size={22} color={colors.danger}/>
-            </TouchableOpacity>
-          </TouchableOpacity>
+            onDelete={() => onDelete(item._id)}
+          />
         )}
       />
     </View>
