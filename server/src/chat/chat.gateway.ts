@@ -35,7 +35,8 @@ export class ChatGateway implements OnGatewayConnection {
     let { conversationId, clientMsgId, text } = body;
 
     if (conversationId === 'new') {
-      const newConv = await this.chat.openConversation(userId);
+      const personaKey = body.personaKey;
+      const newConv = await this.chat.openConversation(userId, personaKey);
       conversationId = String(newConv._id); // 실제 ID로 교체
       // 클라이언트에게도 새로 생성된 ID를 알려줍니다.
       client.emit('conversation:created', {

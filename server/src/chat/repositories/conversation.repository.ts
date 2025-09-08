@@ -2,16 +2,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Conversation } from '../schemas/conversation.schema';
 import { Injectable } from '@nestjs/common';
-
+import type { PersonaKey } from '../../persona/persona.types';
 @Injectable()
 export class ConversationRepository {
   constructor(
     @InjectModel(Conversation.name) private readonly model: Model<Conversation>,
   ) {}
 
-  async create(userId: string, title?: string) {
+  async create(userId: string, personaKey?: PersonaKey, title?: string) {
     const doc = await this.model.create({
       userId,
+      personaKey,
       lastMessageAt: new Date(),
       ...(title ? { title } : {}),
     } as any);

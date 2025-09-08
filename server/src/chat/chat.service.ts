@@ -4,7 +4,8 @@ import { ConversationRepository } from './repositories/conversation.repository';
 import { MessageRepository } from './repositories/message.repository';
 import { LlmService } from './llm.service';
 import type { StreamHandle } from './types/chat.types';
-
+import type { PersonaKey } from '../persona/persona.types';
+import { getSystemPromptForPersona } from 'src/persona/personaPrompts';
 // 스트림 청크 타입(선택: 파일에 두고 재사용해도 됨)
 type StreamChunk =
   | { delta: string; done: false; serverMsgSeq: number }
@@ -22,8 +23,12 @@ export class ChatService {
     private readonly llm: LlmService,
   ) {}
 
-  async openConversation(userId: string, title?: string) {
-    const conv = await this.convRepo.create(userId, title);
+  async openConversation(
+    userId: string,
+    personaKey?: PersonaKey,
+    title?: string,
+  ) {
+    const conv = await this.convRepo.create(userId, personaKey, title);
     return conv;
   }
 
@@ -59,8 +64,8 @@ export class ChatService {
     let assembled = '';
 
     try {
-      const systemPrompt =
-        '너는 사용자의 마음을 위로하는 심리 상담가야. 답변은 항상 한국어로, 1문장 이내로 짧고 간결하게 핵심만 전달해줘. 300토큰 이내로';
+      const conversation = await this.convRepo.findMineById(userId, convId);
+      const systemPrompt = getSystemPromptForPersona(conversation?.personaKey);
       // 3) LLM 스트림 델타 전송
       for await (const delta of this.llm.streamChat(
         text,

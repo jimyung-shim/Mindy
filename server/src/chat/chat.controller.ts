@@ -12,6 +12,7 @@ import { ChatService } from './chat.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import type { RequestUser } from '../auth/get-user.decorator';
+import { CreateConversationDto } from './dto/create-conversation.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('conversations')
@@ -19,8 +20,15 @@ export class ChatController {
   constructor(private readonly chat: ChatService) {}
 
   @Post()
-  async create(@Body() body: { title?: string }, @GetUser() user: RequestUser) {
-    const conv = await this.chat.openConversation(user.userId, body.title);
+  async create(
+    @Body() body: CreateConversationDto,
+    @GetUser() user: RequestUser,
+  ) {
+    const conv = await this.chat.openConversation(
+      user.userId,
+      body.personaKey,
+      body.title,
+    );
     return { conversationId: String(conv._id) };
   }
 

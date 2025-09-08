@@ -146,6 +146,7 @@ export default function ChatScreen({ route }: Props) {
   async function send() {
     if (!input.trim() || sending) return;
     const text = input.trim();
+    const { personaKey } = usePersona.getState();
     setInput('');
     setSending(true);
 
@@ -155,7 +156,7 @@ export default function ChatScreen({ route }: Props) {
 
     const socket = await getSocket();
     const clientMsgId = await Crypto.randomUUID();
-    socket.emit('message:create', { conversationId, clientMsgId, text });
+    socket.emit('message:create', { conversationId, clientMsgId, text, personaKey });
   }
 
   async function cancel() {
