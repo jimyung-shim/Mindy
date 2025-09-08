@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation/types';
 import { login as apiLogin } from '../../services/api'; 
+import AuthLink from '../../components/auth/AuthLink';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -44,12 +45,11 @@ export default function LoginScreen({ navigation }: Props) {
 
       <PrimaryButton title={loading ? '로그인 중…' : '로그인'} onPress={onSubmit} loading={loading} />
 
-      <View style={styles.row}>
-        <Text style={styles.muted}>계정이 없나요?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.link}> 회원가입</Text>
-        </TouchableOpacity>
-      </View>
+      <AuthLink
+        text="계정이 없나요?"
+        linkText="회원가입"
+        onPress={() => navigation.navigate('Signup')}
+      />
     </ScreenContainer>
   );
 }
