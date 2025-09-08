@@ -14,6 +14,8 @@ import type { AppStackParamList } from '../../navigation/types';
 import { getMessages } from '../../services/api';
 import { colors } from '../../theme/colors';
 import { usePersona } from '../../stores/personaStore';
+import MessageBubble from '../../components/chat/MessageBubble';
+import ChatInputBar from '../../components/chat/ChatInputBar';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
@@ -140,39 +142,13 @@ export default function ChatScreen({ route }: Props) {
 
   const renderItem = ({ item }: any) =>{
     const isUser = item.role === 'user';
-    const avatarSource =
-      isUser
-        ? (userAvatar ? { uri: userAvatar } : undefined)
-        : (botAvatarUrl ? { uri: botAvatarUrl } : undefined);
-
     return (
-      <View style={[styles.row, isUser ? styles.rowRight : styles.rowLeft]}>
-        {!isUser && (
-          <View style={styles.avatarWrap}>
-            {avatarSource ? (
-              <Image source={avatarSource} style={styles.avatar} />
-            ) : (
-              <Ionicons name="sparkles-outline" size={28} color={colors.primary} />
-            )}
-          </View>
-        )}
-
-        <View style={[styles.bubble, isUser ? styles.userBubble : styles.botBubble]}>
-          <Text style={[styles.msgText, isUser ? styles.userText : styles.botText]}>
-            {item.text}
-          </Text>
-        </View>
-
-        {isUser && (
-          <View style={styles.avatarWrap}>
-            {avatarSource ? (
-              <Image source={avatarSource} style={styles.avatar} />
-            ) : (
-              <Ionicons name="person-circle-outline" size={28} color={colors.textMuted} />
-            )}
-          </View>
-        )}
-      </View>
+      <MessageBubble
+        item={item}
+        isUser={isUser}
+        userAvatarUrl={userAvatar}
+        botAvatarUrl={botAvatarUrl}
+      />
     );
   }
 
@@ -181,7 +157,7 @@ export default function ChatScreen({ route }: Props) {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.select({ ios: 'padding', android: 'height' })}
-        keyboardVerticalOffset={0} // 헤더가 있으면 그 높이만큼 조정
+        keyboardVerticalOffset={0}
       >
         <FlatList
           ref={listRef}
@@ -193,31 +169,13 @@ export default function ChatScreen({ route }: Props) {
           keyboardShouldPersistTaps="handled"
           onContentSizeChange={() => scrollToBottom(false)}
         />
-
-        {/* 하단 입력 바 */}
-        <View style={styles.inputBar}>
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder="오늘 하루는 어땠나요?"
-            placeholderTextColor={colors.textMuted}
-            style={styles.input}
-            multiline
-          />
-
-          <TouchableOpacity
-            onPress={send}
-            disabled={sending || !input.trim()}
-            accessibilityLabel="전송"
-            style={[styles.iconBtn, (sending || !input.trim()) && styles.iconBtnDisabled]}
-          >
-            <Ionicons name="send" size={20} color="#fff" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={cancel} accessibilityLabel="중지" style={styles.stopBtn}>
-            <Text style={{ color: colors.danger, fontWeight: '600' }}>Stop</Text>
-          </TouchableOpacity>
-        </View>
+        <ChatInputBar
+          input={input}
+          onInputChange={setInput}
+          onSend={send}
+          onCancel={cancel}
+          isSending={sending}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -227,36 +185,4 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg, marginTop: 30 },
   list: { flex: 1 },
   listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  row: { flexDirection: 'row', marginBottom: 8, alignItems: 'flex-end' },
-  rowLeft: { justifyContent: 'flex-start' },
-  rowRight: { justifyContent: 'flex-end' },
-  avatarWrap: { width: 32, height: 32, marginHorizontal: 6, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#f1f2f6' },
-  bubble: { maxWidth: '78%', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 14 },
-  userBubble: { backgroundColor: '#111827', borderBottomRightRadius: 4 },
-  botBubble: { backgroundColor: '#eef0ff', borderColor: colors.border, borderWidth: 1, borderBottomLeftRadius: 4 },
-  msgText: { fontSize: 15, lineHeight: 20 },
-  userText: { color: '#fff' },
-  botText: { color: colors.text },
-  inputBar: {
-    borderTopWidth: 1, borderTopColor: colors.border,
-    backgroundColor: '#fff',
-    paddingHorizontal: 12, paddingVertical: 10,
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    marginBottom: 30
-  },
-  input: {
-    flex: 1,
-    minHeight: 40,
-    maxHeight: 120,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 16,
-    backgroundColor: '#f9fafb',
-  },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  iconBtnDisabled: { opacity: 0.5 },
-  stopBtn: { paddingHorizontal: 8, height: 40, justifyContent: 'center' },
 });
