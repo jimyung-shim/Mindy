@@ -188,7 +188,7 @@ export default function ChatScreen({ route }: Props) {
           style={styles.list}
           contentContainerStyle={styles.listContent}
           data={messages}
-          keyExtractor={(_, i) => String(i)}
+          keyExtractor={(item) => item._id ?? String(Math.random())}
           renderItem={renderItem}
           keyboardShouldPersistTaps="handled"
           onContentSizeChange={() => scrollToBottom(false)}
