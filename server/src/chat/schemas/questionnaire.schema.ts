@@ -1,62 +1,71 @@
+// server/src/chat/schemas/questionnaire.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types, Schema as MongooseSchema } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+
 export type QuestionnaireDocument = HydratedDocument<Questionnaire>;
 
-const PHQ9_LEN = 9;
-@Schema({ collection: 'questionnaires', timestamps: true })
-export class Questionnaire {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
-  userId!: Types.ObjectId;
+export enum QuestionnaireStatus {
+  Draft = 'draft',
+  Submitted = 'submitted',
+}
 
-  @Prop({ type: Types.ObjectId, ref: 'Conversation', index: true })
-  conversationId?: Types.ObjectId;
+export enum TriggerReason {
+  Risk = 'risk',
+  Turns = 'turns',
+}
+
+@Schema({ timestamps: true, collection: 'questionnaires' })
+export class Questionnaire {
+  _id: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, required: true, index: true })
+  userId: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, required: true, index: true })
+  conversationId: Types.ObjectId;
 
   @Prop({
     type: [Number],
-    required: true,
-    validate: [
-      {
-        validator: (a: number[]) => Array.isArray(a) && a.length === PHQ9_LEN,
-        message: `answers must be ${PHQ9_LEN}`,
-      },
-      {
-        validator: (a: number[]) =>
-          a.every((v) => Number.isInteger(v) && v >= 0 && v <= 3),
-        message: '0..3 only',
-      },
-    ],
+    validate: {
+      validator: (arr: number[]) =>
+        Array.isArray(arr) &&
+        arr.length === 9 &&
+        arr.every((n) => Number.isInteger(n) && n >= 0 && n <= 3),
+      message: 'answers must be int[9] in 0..3',
+    },
+    default: undefined,
   })
-  answers!: number[];
+  answers?: number[];
 
-  @Prop({ type: Number, default: 0, index: true })
-  totalScore!: number;
+  @Prop({ type: Number, default: 0 })
+  totalScore: number;
 
-  @Prop({ type: String })
-  summary?: string;
+  @Prop({ type: String, default: '' })
+  summary: string;
 
   @Prop({
     type: String,
-    enum: ['draft', 'submitted'],
-    default: 'draft',
+    enum: QuestionnaireStatus,
+    default: QuestionnaireStatus.Draft,
     index: true,
   })
-  status!: 'draft' | 'submitted';
+  status: QuestionnaireStatus;
 
-  @Prop({ type: Number, default: 1 })
-  version?: number;
+  @Prop({ type: String, enum: TriggerReason, required: true, index: true })
+  reason: TriggerReason;
 
   @Prop({ type: Date })
-  generatedAt?: Date;
+  generatedAt: Date;
 
-  @Prop({ type: MongooseSchema.Types.Mixed })
-  modelInfo?: Record<string, any>;
+  @Prop({ type: Date })
+  submittedAt?: Date;
+
+  @Prop({ type: Object })
+  modelInfo?: { model: string; promptVer: string };
 }
+
 export const QuestionnaireSchema = SchemaFactory.createForClass(Questionnaire);
+
+// helpful compound indexes
 QuestionnaireSchema.index({ userId: 1, createdAt: -1 });
 QuestionnaireSchema.index({ conversationId: 1, status: 1 });
-QuestionnaireSchema.pre('validate', function (next) {
-  if (Array.isArray((this as any).answers)) {
-    (this as any).totalScore = (this as any).answers.reduce((a: number, b: number) => a + b, 0);
-  }
-  next();
-});
