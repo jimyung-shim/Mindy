@@ -99,7 +99,7 @@ export default function MyPageScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <View style={styles.avatarWrap}>
           <Ionicons name="person-circle-outline" size={56} />
         </View>
@@ -109,7 +109,7 @@ export default function MyPageScreen({ navigation }: Props) {
         <Pressable style={styles.editBtn} onPress={onEditProfile}>
           <Text style={styles.editBtnText}>편집하기</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       <View style={{ paddingHorizontal: 12, marginBottom: 8 }}>
         <MyInfoCard />

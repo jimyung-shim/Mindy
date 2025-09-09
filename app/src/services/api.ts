@@ -50,3 +50,38 @@ export async function assignPersona(categories: CategoryKey[]): Promise<PersonaA
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
+// 대화 목록 불러오기
+export async function listConversations(limit = 20, cursor?: string) {
+  const qs = new URLSearchParams({ limit: String(limit) });
+  if (cursor) qs.set('cursor', cursor);
+
+  const res = await authedFetch(`/conversations?${qs.toString()}`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ items: any[] }>;
+}
+
+// 새 대화 생성
+export async function createConversation(title?: string) {
+  const res = await authedFetch(`/conversations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ conversationId: string }>;
+}
+
+// 대화 삭제
+export async function deleteConversation(id: string) {
+  const res = await authedFetch(`/conversations/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json() as Promise<{ ok: boolean }>;
+}
+
+// 메시지 로드
+export async function getMessages(conversationId: string) {
+  const res = await authedFetch(`/conversations/${conversationId}/messages`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}

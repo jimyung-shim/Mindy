@@ -10,6 +10,7 @@ import { signupSchema, type SignupInput } from '../../schemas/auth';
 import { signup } from '../../services/api';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation/types';
+import AuthLink from '../../components/auth/AuthLink';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 
@@ -53,12 +54,11 @@ export default function SignupScreen({ navigation }: Props) {
 
       <PrimaryButton title={loading ? '처리 중…' : '회원가입'} onPress={onSubmit} loading={loading} />
 
-      <View style={styles.row}>
-        <Text style={styles.muted}>이미 계정이 있나요?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.link}> 로그인</Text>
-          </TouchableOpacity>
-      </View>
+      <AuthLink
+        text="계정이 이미 있나요?"
+        linkText="로그인"
+        onPress={() => navigation.navigate('Login')}
+      />
     </ScreenContainer>
   );
 }

@@ -12,6 +12,8 @@ import { PersonaService } from './persona/persona.service';
 import { PersonaToolModule } from './persona/tool/persona-tool.module';
 import { AgentService } from './agent/agent.service';
 import { McpModule } from './mcp/mcp.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ChatModule } from './chat/chat.module';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -26,6 +28,10 @@ const envSchema: ObjectSchema = Joi.object({
 
 @Module({
   imports: [
+    MongooseModule.forRoot(process.env.MONGO_URI!, {
+      serverSelectionTimeoutMS: 5000,
+    }),
+    ChatModule,
     ThrottlerModule.forRoot([{ ttl: 60, limit: 30 }]), // 1분 30회
     ConfigModule.forRoot({
       isGlobal: true,
