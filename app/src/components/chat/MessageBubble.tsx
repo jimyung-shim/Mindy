@@ -11,7 +11,7 @@ type Props = {
   botAvatarUrl?: string;
 };
 
-export default function MessageBubble({ item, isUser, userAvatarUrl, botAvatarUrl }: Props) {
+function MessageBubble({ item, isUser, userAvatarUrl, botAvatarUrl }: Props) {
   const avatarSource = isUser
     ? userAvatarUrl ? { uri: userAvatarUrl } : undefined
     : botAvatarUrl ? { uri: botAvatarUrl } : undefined;
@@ -44,6 +44,8 @@ export default function MessageBubble({ item, isUser, userAvatarUrl, botAvatarUr
     </View>
   );
 }
+
+export default React.memo(MessageBubble);
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', marginBottom: 8, alignItems: 'flex-end' },
