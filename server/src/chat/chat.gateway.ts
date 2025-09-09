@@ -102,4 +102,15 @@ export class ChatGateway implements OnGatewayConnection {
       ok,
     });
   }
+
+  emitSurveyPrompt(
+    userId: string,
+    payload: {
+      conversationId: string;
+      reason: 'risk' | 'turns';
+      draftId: string;
+    },
+  ) {
+    this.server.to(`user:${userId}`).emit('survey:prompt', payload);
+  }
 }
