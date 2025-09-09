@@ -8,6 +8,8 @@ import {
 import { SurveyService } from './survey.service';
 import { SurveyController } from './survey.controller';
 import { SurveyTriggerService } from './survey.trigger';
+import { ChatModule } from 'src/chat/chat.module';
+import { RiskClassifierService } from 'src/risk/risk.classifier.service';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { SurveyTriggerService } from './survey.trigger';
         schema: QuestionnaireSchema,
       },
     ]),
+    ChatModule,
   ],
-  providers: [SurveyService, SurveyTriggerService],
+  providers: [SurveyService, SurveyTriggerService, RiskClassifierService],
   controllers: [SurveyController],
   exports: [SurveyTriggerService, SurveyService],
 })

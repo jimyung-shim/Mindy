@@ -36,6 +36,6 @@ import { PersonaService } from 'src/persona/persona.service';
     WsJwtGuard,
     PersonaService,
   ],
-  exports: [],
+  exports: [ChatGateway],
 })
 export class ChatModule {}
