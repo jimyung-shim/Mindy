@@ -16,6 +16,7 @@ import {
 import { ConversationRepository } from './repositories/conversation.repository';
 import { MessageRepository } from './repositories/message.repository';
 import { WsJwtGuard } from './auth/ws-jwt.guard';
+import { PersonaService } from 'src/persona/persona.service';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { WsJwtGuard } from './auth/ws-jwt.guard';
     ConversationRepository,
     MessageRepository,
     WsJwtGuard,
+    PersonaService,
   ],
   exports: [],
 })

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { Axis, CategoryKey, PersonaKey } from './persona.types';
 import { personaLabelKorean } from './persona.types';
+import { getSystemPromptForPersona } from './personaPrompts';
 
 const MAP: Record<CategoryKey, [Axis, number][]> = {
   RELATION_BULLYING: [['RELATION', 3]],
@@ -119,5 +120,9 @@ export class PersonaService {
       ? `선택 항목이 ${label} 축에 고르게 분포하여 조합형을 배정했어요.`
       : `선택 항목이 '${label}' 축에 가장 강하게 모여 단일형을 배정했어요.`;
     return { personaKey, personaLabel: label, reason };
+  }
+
+  getSystemPrompt(key?: PersonaKey | null): string {
+    return getSystemPromptForPersona(key);
   }
 }

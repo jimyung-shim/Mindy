@@ -6,6 +6,7 @@ import { LlmService } from './llm.service';
 import type { StreamHandle } from './types/chat.types';
 import type { PersonaKey } from '../persona/persona.types';
 import { getSystemPromptForPersona } from 'src/persona/personaPrompts';
+import { PersonaService } from 'src/persona/persona.service';
 // 스트림 청크 타입(선택: 파일에 두고 재사용해도 됨)
 type StreamChunk =
   | { delta: string; done: false; serverMsgSeq: number }
@@ -18,9 +19,10 @@ export class ChatService {
   private readonly running = new Map<string, Map<string, StreamHandle>>();
 
   constructor(
-    private readonly convRepo: ConversationRepository,
-    private readonly msgRepo: MessageRepository,
-    private readonly llm: LlmService,
+    private readonly conversationRepository: ConversationRepository,
+    private readonly messageRepository: MessageRepository,
+    private readonly llmService: LlmService,
+    private readonly personaService: PersonaService,
   ) {}
 
   async openConversation(
@@ -28,12 +30,16 @@ export class ChatService {
     personaKey?: PersonaKey,
     title?: string,
   ) {
-    const conv = await this.convRepo.create(userId, personaKey, title);
+    const conv = await this.conversationRepository.create(
+      userId,
+      personaKey,
+      title,
+    );
     return conv;
   }
 
   async listConversations(userId: string, limit = 20, cursor?: Date) {
-    return this.convRepo.findMine(userId, limit, cursor);
+    return this.conversationRepository.findMine(userId, limit, cursor);
   }
 
   // ⬇⬇⬇ 여기 시그니처가 핵심: async * 로 변경, 반환 타입도 AsyncGenerator 로 명시
@@ -48,13 +54,13 @@ export class ChatService {
     const convId = new Types.ObjectId(conversationId);
 
     // 1) 유저 메시지 저장 + 카운트/타임스탬프 갱신
-    const userMsg = await this.msgRepo.appendUserMessage(
+    const userMsg = await this.messageRepository.appendUserMessage(
       convId,
       userId,
       clientMsgId,
       text,
     );
-    await this.convRepo.touch(convId);
+    await this.conversationRepository.touch(convId);
 
     // 2) 스트리밍 컨트롤러 등록
     const controller = new AbortController();
@@ -64,10 +70,15 @@ export class ChatService {
     let assembled = '';
 
     try {
-      const conversation = await this.convRepo.findMineById(userId, convId);
-      const systemPrompt = getSystemPromptForPersona(conversation?.personaKey);
+      const conversation = await this.conversationRepository.findMineById(
+        userId,
+        convId,
+      );
+      const systemPrompt = this.personaService.getSystemPrompt(
+        conversation?.personaKey,
+      );
       // 3) LLM 스트림 델타 전송
-      for await (const delta of this.llm.streamChat(
+      for await (const delta of this.llmService.streamChat(
         text,
         systemPrompt,
         controller.signal,
@@ -77,12 +88,12 @@ export class ChatService {
       }
 
       // 4) 보조응답 저장 + 최종 청크
-      const assistant = await this.msgRepo.appendAssistantMessage(
+      const assistant = await this.messageRepository.appendAssistantMessage(
         convId,
         assembled,
         { usage: {} },
       );
-      await this.convRepo.touch(convId);
+      await this.conversationRepository.touch(convId);
 
       yield { done: true, text: assembled, serverMsgId: String(assistant._id) };
     } finally {
@@ -113,19 +124,19 @@ export class ChatService {
   async deleteConversation(userId: string, conversationId: string) {
     const _id = new Types.ObjectId(conversationId);
     // 1) 메시지 먼저 삭제
-    await this.msgRepo.deleteByConversation(_id);
+    await this.messageRepository.deleteByConversation(_id);
     // 2) 본인 소유의 대화방만 삭제
-    await this.convRepo.deleteMine(userId, _id);
+    await this.conversationRepository.deleteMine(userId, _id);
     return { ok: true };
   }
 
   async getMessages(userId: string, conversationId: string) {
     const convId = new Types.ObjectId(conversationId);
     // 본인 소유 대화방이 맞는지 확인
-    const conv = await this.convRepo.findMineById(userId, convId);
+    const conv = await this.conversationRepository.findMineById(userId, convId);
     if (!conv) {
       throw new Error('Conversation not found or access denied');
     }
-    return this.msgRepo.list(convId, 100); // 최근 100개 메시지
+    return this.messageRepository.list(convId, 100); // 최근 100개 메시지
   }
 }
