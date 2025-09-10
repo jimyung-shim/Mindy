@@ -17,12 +17,10 @@ import { usePersona } from '../../stores/personaStore';
 import MessageBubble from '../../components/chat/MessageBubble';
 import ChatInputBar from '../../components/chat/ChatInputBar';
 import Header from '../../components/common/Header';
-import { useSurveyPromptListener } from './useSurveyPromptListener';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Chat'>;
 
 export default function ChatScreen({ route }: Props) {
-  useSurveyPromptListener();
   const { conversationId } = route.params;
   const {
     messagesByConv,

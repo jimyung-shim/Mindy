@@ -6,10 +6,12 @@ import type { AppStackParamList } from './types';
 import { usePersona } from '../stores/personaStore';
 import ChatScreen from '../screens/chat/ChatScreen';
 import SurveyScreen from '../screens/survey/SurveyScreen';
+import { useSurveyPromptListener } from '../screens/chat/useSurveyPromptListener';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppNavigator() {
+    useSurveyPromptListener();
     const hasPersona = usePersona((s) => !!s.personaKey);
     return (
         <Stack.Navigator initialRouteName={hasPersona ? 'Tabs' : 'PersonaSelect'}>
