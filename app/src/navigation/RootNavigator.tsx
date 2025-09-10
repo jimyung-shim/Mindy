@@ -6,19 +6,18 @@ import { useAuth } from '../stores/authStore';
 import { initSocket, joinUserRoom, onSurveyPrompt, offSurveyPrompt } from '../services/socket';
 import { Alert } from 'react-native';
 
-export default function RootNavigator() {
+function AppOrAuth() {
     const accessToken = useAuth((s) => s.accessToken);
     const userId = useAuth((s) => s.userId);
-    const navigation = useNavigation<any>(); // [!] 네비게이션 훅 호출
+    const navigation = useNavigation<any>();
 
     useEffect(() => {
         if (accessToken && userId) {
-            // 토큰으로 소켓을 초기화(연결)
+            // 1. 소켓 연결 및 방 참가
             initSocket(accessToken);
-            // 서버에 내 고유 ID로 만들어진 방에 참가한다고 알림
-            joinUserRoom(userId); // accessToken이나 userId가 변경되면 실행
+            joinUserRoom(userId);
 
-            // 문진표 이벤트 핸들러 정의
+            // 2. 문진표 이벤트 핸들러 정의
             const handler = (payload: { draftId: string }) => {
                 Alert.alert(
                     '문진표 안내',
@@ -30,14 +29,23 @@ export default function RootNavigator() {
                 );
             };
 
+            // 3. 이벤트 리스너 등록
             onSurveyPrompt(handler);
 
-            offSurveyPrompt(handler);
+            // 4. 컴포넌트가 사라지거나 재연결될 때 리스너 정리
+            return () => {
+                offSurveyPrompt(handler);
+            };
         }
     }, [accessToken, userId, navigation]);
+
+    return accessToken ? <AppNavigator /> : <AuthNavigator />;
+}
+
+export default function RootNavigator() {
     return (
         <NavigationContainer>
-            {accessToken ? <AppNavigator /> : <AuthNavigator />}
+            <AppOrAuth />
         </NavigationContainer>
     );
 }
