@@ -24,6 +24,17 @@ export class ChatGateway implements OnGatewayConnection {
     // ping/pong은 socket.io 기본 제공
   }
 
+  // 클라이언트의 방 참가 요청을 처리하는 핸들러
+  @SubscribeMessage('join')
+  onJoin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { room: string },
+  ) {
+    if (payload?.room) {
+      client.join(payload.room);
+    }
+  }
+
   @SubscribeMessage('message:create')
   async onCreate(
     @ConnectedSocket() client: Socket,
