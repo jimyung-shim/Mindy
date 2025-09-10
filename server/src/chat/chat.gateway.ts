@@ -6,7 +6,7 @@ import {
   ConnectedSocket,
   OnGatewayConnection,
 } from '@nestjs/websockets';
-import { UseGuards, UnauthorizedException } from '@nestjs/common';
+import { UseGuards, UnauthorizedException, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { WsJwtGuard } from './auth/ws-jwt.guard';
@@ -18,6 +18,8 @@ import { CreateMessageDto } from './dto/create-message.dto';
 @UseGuards(WsJwtGuard)
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer() server!: Server;
+  private readonly logger = new Logger(ChatGateway.name);
+
   constructor(private readonly chat: ChatService) {}
 
   handleConnection(client: Socket) {
@@ -31,6 +33,7 @@ export class ChatGateway implements OnGatewayConnection {
     @MessageBody() payload: { room: string },
   ) {
     if (payload?.room) {
+      this.logger.log(`Client ${client.id} joining room: ${payload.room}`);
       client.join(payload.room);
     }
   }
@@ -122,6 +125,12 @@ export class ChatGateway implements OnGatewayConnection {
       draftId: string;
     },
   ) {
-    this.server.to(`user:${userId}`).emit('survey:prompt', payload);
+    const room = `user:${userId}`;
+    // [!] 2. 어떤 방에 이벤트를 보내려 하는지, 그리고 그 방에 몇 명이나 있는지 로그로 확인
+    const clientsInRoom = this.server.sockets.adapter.rooms.get(room);
+    this.logger.log(`Attempting to emit survey prompt to room: ${room}`);
+    this.logger.log(`Found ${clientsInRoom?.size ?? 0} clients in room`);
+
+    this.server.to(room).emit('survey:prompt', payload);
   }
 }
