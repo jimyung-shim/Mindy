@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatGateway } from './chat.gateway';
 import { ChatController } from './chat.controller';
@@ -17,6 +17,9 @@ import { ConversationRepository } from './repositories/conversation.repository';
 import { MessageRepository } from './repositories/message.repository';
 import { WsJwtGuard } from './auth/ws-jwt.guard';
 import { PersonaService } from 'src/persona/persona.service';
+import { SurveyTriggerService } from 'src/survey/survey.trigger';
+import { RiskClassifierService } from 'src/risk/risk.classifier.service';
+import { SurveyModule } from 'src/survey/survey.module';
 
 @Module({
   imports: [
@@ -25,6 +28,7 @@ import { PersonaService } from 'src/persona/persona.service';
       { name: Message.name, schema: MessageSchema },
       { name: Questionnaire.name, schema: QuestionnaireSchema },
     ]),
+    forwardRef(() => SurveyModule),
   ],
   controllers: [ChatController],
   providers: [
@@ -35,7 +39,9 @@ import { PersonaService } from 'src/persona/persona.service';
     MessageRepository,
     WsJwtGuard,
     PersonaService,
+    SurveyTriggerService,
+    RiskClassifierService,
   ],
-  exports: [ChatGateway],
+  exports: [ChatGateway, ChatService],
 })
 export class ChatModule {}

@@ -1,5 +1,5 @@
 // server/src/survey/survey.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   Questionnaire,
@@ -19,7 +19,7 @@ import { RiskClassifierService } from 'src/risk/risk.classifier.service';
         schema: QuestionnaireSchema,
       },
     ]),
-    ChatModule,
+    forwardRef(() => ChatModule),
   ],
   providers: [SurveyService, SurveyTriggerService, RiskClassifierService],
   controllers: [SurveyController],

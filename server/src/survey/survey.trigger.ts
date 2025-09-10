@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { SurveyService } from './survey.service';
 import { TriggerReason } from '../chat/schemas/questionnaire.schema';
 import { ChatGateway } from '../chat/chat.gateway';
@@ -13,6 +13,7 @@ export class SurveyTriggerService {
 
   constructor(
     private readonly surveyService: SurveyService,
+    @Inject(forwardRef(() => ChatGateway))
     private readonly chatGateway: ChatGateway,
     private readonly riskClassifierService: RiskClassifierService,
   ) {}

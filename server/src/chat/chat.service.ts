@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ConversationRepository } from './repositories/conversation.repository';
 import { MessageRepository } from './repositories/message.repository';
@@ -7,6 +7,8 @@ import type { StreamHandle } from './types/chat.types';
 import type { PersonaKey } from '../persona/persona.types';
 import { getSystemPromptForPersona } from 'src/persona/personaPrompts';
 import { PersonaService } from 'src/persona/persona.service';
+import { SurveyTriggerService } from 'src/survey/survey.trigger';
+
 // 스트림 청크 타입(선택: 파일에 두고 재사용해도 됨)
 type StreamChunk =
   | { delta: string; done: false; serverMsgSeq: number }
@@ -23,6 +25,8 @@ export class ChatService {
     private readonly messageRepository: MessageRepository,
     private readonly llmService: LlmService,
     private readonly personaService: PersonaService,
+    @Inject(forwardRef(() => SurveyTriggerService))
+    private readonly surveyTriggerService: SurveyTriggerService,
   ) {}
 
   async openConversation(
@@ -94,6 +98,12 @@ export class ChatService {
         { usage: {} },
       );
       await this.conversationRepository.touch(convId);
+      void this.surveyTriggerService.onMessageCreated({
+        userId,
+        conversationId,
+        messageCount: (conversation?.messageCount ?? 0) + 1,
+        text: text,
+      });
 
       yield { done: true, text: assembled, serverMsgId: String(assistant._id) };
     } finally {

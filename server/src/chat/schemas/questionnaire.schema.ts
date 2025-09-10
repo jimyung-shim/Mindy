@@ -18,11 +18,11 @@ export enum TriggerReason {
 export class Questionnaire {
   _id: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, required: true, index: true })
-  userId: Types.ObjectId;
+  @Prop({ type: String, required: true, index: true })
+  userId: string;
 
-  @Prop({ type: Types.ObjectId, required: true, index: true })
-  conversationId: Types.ObjectId;
+  @Prop({ type: String, required: true, index: true })
+  conversationId: string;
 
   @Prop({
     type: [Number],

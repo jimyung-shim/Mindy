@@ -28,8 +28,7 @@ export class SurveyService {
     summary?: string;
     modelInfo?: { model: string; promptVer: string };
   }) {
-    const userId = new Types.ObjectId(params.userId);
-    const conversationId = new Types.ObjectId(params.conversationId);
+    const { userId, conversationId } = params;
 
     const exists = await this.qModel.findOne({
       userId,
@@ -61,8 +60,7 @@ export class SurveyService {
     const _id = new Types.ObjectId(id);
     const doc = await this.qModel.findById(_id);
     if (!doc) throw new NotFoundException('survey not found');
-    if (doc.userId.toString() !== userId)
-      throw new ForbiddenException('not owner');
+    if (doc.userId !== userId) throw new ForbiddenException('not owner');
     if (!isValidAnswers(payload.answers))
       throw new BadRequestException('answers must be int[9] in 0..3');
 
@@ -76,7 +74,7 @@ export class SurveyService {
 
   listMine(userId: string, limit = 20) {
     return this.qModel
-      .find({ userId: new Types.ObjectId(userId) })
+      .find({ userId: userId })
       .sort({ createdAt: -1 })
       .limit(limit);
   }
@@ -84,7 +82,7 @@ export class SurveyService {
   async findByIdForOwner(userId: string, id: string) {
     const doc = await this.qModel.findById(id);
     if (!doc) throw new NotFoundException();
-    if (doc.userId.toString() !== userId) throw new ForbiddenException();
+    if (doc.userId !== userId) throw new ForbiddenException();
     return doc;
   }
 }
