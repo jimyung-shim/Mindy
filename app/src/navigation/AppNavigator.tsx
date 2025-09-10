@@ -11,7 +11,7 @@ import { useSurveyPromptListener } from '../screens/chat/useSurveyPromptListener
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppNavigator() {
-    useSurveyPromptListener();
+    //useSurveyPromptListener();
     const hasPersona = usePersona((s) => !!s.personaKey);
     return (
         <Stack.Navigator initialRouteName={hasPersona ? 'Tabs' : 'PersonaSelect'}>
