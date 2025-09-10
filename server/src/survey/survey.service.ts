@@ -133,4 +133,11 @@ export class SurveyService {
     if (doc.userId !== userId) throw new ForbiddenException();
     return doc;
   }
+
+  async deleteForOwner(userId: string, id: string): Promise<void> {
+    const doc = await this.qModel.findById(id);
+    if (!doc) throw new NotFoundException();
+    if (doc.userId !== userId) throw new ForbiddenException();
+    await this.qModel.deleteOne({ _id: new Types.ObjectId(id) });
+  }
 }

@@ -8,6 +8,7 @@ import {
   Query,
   Req,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { SurveyService } from './survey.service';
 import { CreateDraftDto } from './dto/draft.dto';
@@ -92,5 +93,12 @@ export class SurveyController {
       generatedAt: d.generatedAt,
       submittedAt: d.submittedAt,
     };
+  }
+
+  @Delete(':id')
+  async delete(@Req() req: any, @Param('id') id: string) {
+    const userId = req.user.userId as string;
+    await this.surveyService.deleteForOwner(userId, id);
+    return { ok: true };
   }
 }

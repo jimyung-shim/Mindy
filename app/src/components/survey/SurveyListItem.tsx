@@ -8,6 +8,7 @@ import type { SurveyMineItem } from '../../types/survey';
 type Props = {
   item: SurveyMineItem;
   onPress: () => void;
+  onDelete: () => void;
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -21,7 +22,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function SurveyListItem({ item, onPress }: Props) {
+export default function SurveyListItem({ item, onPress, onDelete }: Props) {
   const severity = phq9Severity(item.totalScore);
 
   return (
@@ -37,6 +38,9 @@ export default function SurveyListItem({ item, onPress }: Props) {
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={22} color={colors.textMuted} />
+      <TouchableOpacity onPress={onDelete} style={styles.deleteButton} accessibilityLabel="문진표 삭제">
+        <Ionicons name="trash-outline" size={22} color={colors.danger} />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
@@ -65,4 +69,8 @@ const styles = StyleSheet.create({
   badgeTextDraft: { color: colors.textMuted },
   reasonText: { color: colors.textMuted, fontSize: 13 },
   score: { fontWeight: '700', fontSize: 16, color: colors.text, marginTop: 2 },
+  deleteButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
 });

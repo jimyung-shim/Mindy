@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useLayoutEffect } from 'react';
-import { View, FlatList, ActivityIndicator, Text, RefreshControl, StyleSheet} from 'react-native';
+import { View, FlatList, ActivityIndicator, Text, RefreshControl, StyleSheet, Alert} from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../stores/authStore';
-import { listMySurveys } from '../../services/surveyApi';
+import { listMySurveys, deleteSurvey } from '../../services/surveyApi';
 import type { SurveyMineItem } from '../../types/survey';
 import SurveyListItem from '../../components/survey/SurveyListItem';
 import Header from '../../components/common/Header';
@@ -33,6 +33,33 @@ export default function SurveyListScreen() {
     }
   }, [accessToken]);
 
+  const handleDelete = useCallback((id: string) => {
+    Alert.alert(
+      '문진표 삭제',
+      '이 문진표를 정말 삭제하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            if (!accessToken) return;
+            try {
+              // 낙관적 UI 업데이트: 목록에서 바로 제거
+              setSurveys((prev) => prev.filter((s) => s.id !== id));
+              await deleteSurvey(accessToken, id);
+            } catch (e: any) {
+              Alert.alert('삭제 실패', e?.message ?? '오류가 발생했습니다.');
+              // 실패 시 목록 새로고침 (롤백)
+              void load();
+            }
+          },
+        },
+      ],
+    );
+  }, [accessToken, load]);
+
+
   useFocusEffect(useCallback(() => {
     void load();
   }, [load]));
@@ -51,6 +78,7 @@ export default function SurveyListScreen() {
     return <View style={styles.center}><Text style={styles.error}>{error}</Text></View>;
   }
 
+
   return (
     <FlatList
       data={surveys}
@@ -59,6 +87,7 @@ export default function SurveyListScreen() {
         <SurveyListItem
           item={item}
           onPress={() => navigation.navigate('Survey', { draftId: item.id })}
+          onDelete={() => handleDelete(item.id)}
         />
       )}
       contentContainerStyle={styles.listContent}

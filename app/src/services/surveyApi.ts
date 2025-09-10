@@ -48,3 +48,9 @@ export async function getSurvey(token: string, id: string): Promise<SurveyDetail
   const res = await API.get<SurveyDetail>(url, { headers: authHeaders(token) });
   return res.data;
 }
+
+export async function deleteSurvey(token: string, id: string): Promise<{ ok: boolean }> {
+  const url = withPath(SERVER_URL, `/surveys/${id}`);
+  const res = await API.delete<{ ok: boolean }>(url, { headers: authHeaders(token) });
+  return res.data;
+}
