@@ -39,12 +39,18 @@ export class SurveyTriggerService {
     const shouldByRisk = cls.level === 'moderate' || cls.level === 'high';
     if (!shouldByTurns && !shouldByRisk) return;
 
+    const analysis = await this.surveyService.analyzeLogForSurvey(
+      ev.conversationId,
+    );
+
     const reason = shouldByRisk ? TriggerReason.Risk : TriggerReason.Turns;
 
     const draft = await this.surveyService.createDraft({
       userId: ev.userId,
       conversationId: ev.conversationId,
       reason,
+      answers: analysis.answers,
+      summary: analysis.summary,
     });
 
     recentTriggerByConv.set(ev.conversationId, now);

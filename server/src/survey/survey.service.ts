@@ -12,13 +12,61 @@ import {
   TriggerReason,
 } from '../chat/schemas/questionnaire.schema';
 import { isValidAnswers, calcTotalScore } from './survey.util';
+import { LlmService } from 'src/chat/llm.service';
+import { MessageRepository } from 'src/chat/repositories/message.repository';
+import { PHQ9_QUESTIONS } from './survey.util';
 
 @Injectable()
 export class SurveyService {
   constructor(
     @InjectModel(Questionnaire.name)
     private readonly qModel: Model<Questionnaire>,
+    private readonly llmService: LlmService,
+    private readonly messageRepository: MessageRepository, // [!] 추가
   ) {}
+
+  async analyzeLogForSurvey(
+    conversationId: string,
+  ): Promise<{ answers: number[]; summary: string }> {
+    const messages = await this.messageRepository.list(
+      new Types.ObjectId(conversationId),
+      200,
+    );
+    const logText = messages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => `${m.role === 'user' ? '사용자' : '상담가'}: ${m.text}`)
+      .join('\n');
+
+    const systemPrompt = [
+      'You are a psychological counselor who analyzes conversation logs to fill out a PHQ-9 questionnaire.',
+      'Based on the provided conversation log, you must generate a JSON object with two keys: "answers" and "summary".',
+      '1. "answers": This must be an array of 9 integers, where each integer is a score from 0 to 3 for the corresponding PHQ-9 question. The questions are:',
+      ...PHQ9_QUESTIONS.map((q, i) => `${i + 1}. ${q}`),
+      'Score each item from 0 (Not at all) to 3 (Nearly every day). Infer the score from the user\'s statements.',
+      '2. "summary": This must be a string that summarizes the user\'s psychological state in Korean, written in 2-3 concise sentences.',
+      'Return ONLY the raw JSON object, without any markdown formatting or explanations.',
+    ].join('\n');
+
+    const analysisText = await this.llmService.getChatCompletion(
+      logText,
+      systemPrompt,
+    );
+    try {
+      const result = JSON.parse(analysisText);
+      if (
+        isValidAnswers(result.answers) &&
+        typeof result.summary === 'string'
+      ) {
+        return { answers: result.answers, summary: result.summary };
+      }
+    } catch {
+      // 파싱 실패 시 기본값 반환
+    }
+    return {
+      answers: Array(9).fill(0),
+      summary: '대화 내용 요약에 실패했습니다.',
+    };
+  }
 
   async createDraft(params: {
     userId: string;

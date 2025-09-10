@@ -42,6 +42,6 @@ import { SurveyModule } from 'src/survey/survey.module';
     SurveyTriggerService,
     RiskClassifierService,
   ],
-  exports: [ChatGateway, ChatService],
+  exports: [ChatGateway, ChatService, LlmService, MessageRepository],
 })
 export class ChatModule {}

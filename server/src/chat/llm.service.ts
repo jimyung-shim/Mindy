@@ -26,4 +26,16 @@ export class LlmService {
       if (delta) yield delta;
     }
   }
+
+  async getChatCompletion(content: string, system?: string): Promise<string> {
+    const res = await this.openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      messages: [
+        ...(system ? [{ role: 'system' as const, content: system }] : []),
+        { role: 'user' as const, content },
+      ],
+      response_format: { type: 'json_object' },
+    });
+    return res.choices[0]?.message?.content ?? '{}';
+  }
 }
