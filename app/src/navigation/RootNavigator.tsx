@@ -3,7 +3,7 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import AuthNavigator from './AuthNavigator';
 import AppNavigator from './AppNavigator';
 import { useAuth } from '../stores/authStore';
-import { initSocket, joinUserRoom, onSurveyPrompt, offSurveyPrompt } from '../services/socket';
+import { initializeSocket, onSurveyPrompt, offSurveyPrompt } from '../services/socket';
 import { Alert } from 'react-native';
 
 function AppOrAuth() {
@@ -14,9 +14,7 @@ function AppOrAuth() {
     useEffect(() => {
         if (accessToken && userId) {
             // 1. 소켓 연결 및 방 참가
-            initSocket(accessToken);
-            joinUserRoom(userId);
-
+            initializeSocket(accessToken, userId);
             // 2. 문진표 이벤트 핸들러 정의
             const handler = (payload: { draftId: string }) => {
                 Alert.alert(

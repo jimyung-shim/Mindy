@@ -103,7 +103,7 @@ export default function SurveyScreen() {
         <Text style={{ fontSize: 16, color: '#666' }}>({severity})</Text>
       </View>
 
-      <Button title={submitting ? '제출 중...' : '제출하기'} disabled={submitting} onPress={onSubmit} />
+      <View style={{marginBottom: 50}}><Button title={submitting ? '제출 중...' : '제출하기'} disabled={submitting} onPress={onSubmit}/></View>
     </ScrollView>
   );
 }
