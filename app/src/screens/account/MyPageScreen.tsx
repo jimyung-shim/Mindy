@@ -61,7 +61,7 @@ export default function MyPageScreen({ navigation }: Props) {
           key: 'questionnaire',
           label: '문진표',
           icon: <Feather name="list" size={20} />,
-          onPress: () => navigation.navigate('Questionnaire'), // 라우트명 변경
+          onPress: () => navigation.navigate('SurveyList'), // 라우트명 변경
         },
         {
           key: 'reservation',

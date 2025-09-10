@@ -18,6 +18,8 @@ export type AppStackParamList = {
     PersonaSelect: undefined;
     Chat: {conversationId: string};
     Survey: { draftId: string };
+    SurveyList: undefined;
+
 };
 
 export type RootStackParamList = {
