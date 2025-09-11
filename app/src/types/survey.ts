@@ -1,6 +1,13 @@
 export type SurveyStatus = 'draft' | 'submitted';
 export type SurveyReason = 'risk' | 'turns';
 
+// 단일 검사 결과 타입
+type SurveyResult = {
+  _id: string;
+  answers: number[];
+  totalScore: number;
+};
+
 export type SurveyDraftResponse = {
   id: string;
   status: SurveyStatus;
@@ -29,8 +36,11 @@ export type SurveyDetail = {
   id: string;
   conversationId: string;
   status: SurveyStatus | string;
-  answers?: number[];
-  totalScore: number;
   summary: string;
   reason: SurveyReason | string;
+  createdAt: string;
+  submittedAt?: string;
+  phq9?: SurveyResult;
+  gad7?: SurveyResult;
+  pss?: SurveyResult;
 };
