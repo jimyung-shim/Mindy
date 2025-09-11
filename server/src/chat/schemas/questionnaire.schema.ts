@@ -24,24 +24,17 @@ export class Questionnaire {
   @Prop({ type: String, required: true, index: true })
   conversationId: string;
 
-  @Prop({
-    type: [Number],
-    validate: {
-      validator: (arr: number[]) =>
-        Array.isArray(arr) &&
-        arr.length === 9 &&
-        arr.every((n) => Number.isInteger(n) && n >= 0 && n <= 3),
-      message: 'answers must be int[9] in 0..3',
-    },
-    default: undefined,
-  })
-  answers?: number[];
-
-  @Prop({ type: Number, default: 0 })
-  totalScore: number;
-
   @Prop({ type: String, default: '' })
   summary: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'Phq9' })
+  phq9?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Gad7' })
+  gad7?: Types.ObjectId;
+
+  @Prop({ type: Types.ObjectId, ref: 'Pss' })
+  pss?: Types.ObjectId;
 
   @Prop({
     type: String,

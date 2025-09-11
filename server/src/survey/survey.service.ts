@@ -11,23 +11,32 @@ import {
   QuestionnaireStatus,
   TriggerReason,
 } from '../chat/schemas/questionnaire.schema';
-import { isValidAnswers, calcTotalScore } from './survey.util';
+import { Phq9 } from '../chat/schemas/phq9.schema';
+import { Gad7 } from '../chat/schemas/gad7.schema';
+import { Pss } from '../chat/schemas/pss.schema';
+import {
+  isValidAnswers,
+  calcTotalScore,
+  PHQ9_QUESTIONS,
+  GAD7_QUESTIONS,
+  PSS_QUESTIONS,
+} from './survey.util';
 import { LlmService } from 'src/chat/llm.service';
 import { MessageRepository } from 'src/chat/repositories/message.repository';
-import { PHQ9_QUESTIONS } from './survey.util';
 
 @Injectable()
 export class SurveyService {
   constructor(
     @InjectModel(Questionnaire.name)
     private readonly qModel: Model<Questionnaire>,
+    @InjectModel(Phq9.name) private readonly phq9Model: Model<Phq9>,
+    @InjectModel(Gad7.name) private readonly gad7Model: Model<Gad7>,
+    @InjectModel(Pss.name) private readonly pssModel: Model<Pss>,
     private readonly llmService: LlmService,
-    private readonly messageRepository: MessageRepository, // [!] 추가
+    private readonly messageRepository: MessageRepository,
   ) {}
 
-  async analyzeLogForSurvey(
-    conversationId: string,
-  ): Promise<{ answers: number[]; summary: string }> {
+  async analyzeLogForSurvey(conversationId: string) {
     const messages = await this.messageRepository.list(
       new Types.ObjectId(conversationId),
       200,
@@ -38,13 +47,12 @@ export class SurveyService {
       .join('\n');
 
     const systemPrompt = [
-      'You are a psychological counselor who analyzes conversation logs to fill out a PHQ-9 questionnaire.',
-      'Based on the provided conversation log, you must generate a JSON object with two keys: "answers" and "summary".',
-      '1. "answers": This must be an array of 9 integers, where each integer is a score from 0 to 3 for the corresponding PHQ-9 question. The questions are:',
-      ...PHQ9_QUESTIONS.map((q, i) => `${i + 1}. ${q}`),
-      'Score each item from 0 (Not at all) to 3 (Nearly every day). Infer the score from the user\'s statements.',
-      '2. "summary": This must be a string that summarizes the user\'s psychological state in Korean, written in 2-3 concise sentences.',
-      'Return ONLY the raw JSON object, without any markdown formatting or explanations.',
+      'You are an AI psychologist. Based on the conversation log, you must generate a JSON object with keys: "summary", "phq9_answers", "gad7_answers", "pss_answers".',
+      '1. "summary": Summarize the user\'s state in 2-3 Korean sentences.',
+      `2. "phq9_answers": An array of 9 integers (0-3) for the PHQ-9 questions. Questions are: ${JSON.stringify(PHQ9_QUESTIONS)}`,
+      `3. "gad7_answers": An array of 7 integers (0-3) for the GAD-7 questions. Questions are: ${JSON.stringify(GAD7_QUESTIONS)}`,
+      `4. "pss_answers": An array of 10 integers (0-4) for the PSS questions. Questions are: ${JSON.stringify(PSS_QUESTIONS)}`,
+      'Return ONLY the raw JSON object.',
     ].join('\n');
 
     const analysisText = await this.llmService.getChatCompletion(
@@ -54,17 +62,17 @@ export class SurveyService {
     try {
       const result = JSON.parse(analysisText);
       if (
-        isValidAnswers(result.answers) &&
-        typeof result.summary === 'string'
+        result.phq9_answers?.length === 9 &&
+        result.gad7_answers?.length === 7 &&
+        result.pss_answers?.length === 10
       ) {
-        return { answers: result.answers, summary: result.summary };
+        return result;
       }
     } catch {
       // 파싱 실패 시 기본값 반환
     }
     return {
-      answers: Array(9).fill(0),
-      summary: '대화 내용 요약에 실패했습니다.',
+      summary: '분석 실패', phq9_answers: Array(9).fill(0), gad7_answers: Array(7).fill(0), pss_answers: Array(10).fill(0)
     };
   }
 
@@ -72,53 +80,70 @@ export class SurveyService {
     userId: string;
     conversationId: string;
     reason: TriggerReason;
-    answers?: number[];
-    summary?: string;
-    modelInfo?: { model: string; promptVer: string };
-  }) {
-    const { userId, conversationId } = params;
+    analysis: {
+      summary: string;
+      phq9_answers: number[];
+      gad7_answers: number[];
+      pss_answers: number[];
+    };  }) {
+    const { userId, conversationId, reason, analysis } = params;
 
     const exists = await this.qModel.findOne({
       userId,
       conversationId,
-      status: QuestionnaireStatus.Draft,
+      status: 'draft',
     });
     if (exists) return exists;
 
-    const answers = isValidAnswers(params.answers) ? params.answers : undefined;
-    const doc = await this.qModel.create({
-      userId,
-      conversationId,
-      reason: params.reason,
-      answers,
-      totalScore: answers ? calcTotalScore(answers) : 0,
-      summary: params.summary ?? '',
-      status: QuestionnaireStatus.Draft,
-      generatedAt: new Date(),
-      modelInfo: params.modelInfo,
+    const questionnaire = new this.qModel({
+      userId, conversationId, reason, summary: analysis.summary,
+      status: 'draft', generatedAt: new Date(),
     });
-    return doc;
+
+    const phq9 = new this.phq9Model({
+      questionnaireId: questionnaire._id,
+      answers: analysis.phq9_answers,
+      totalScore: calcTotalScore(analysis.phq9_answers),
+    });
+    const gad7 = new this.gad7Model({
+      questionnaireId: questionnaire._id,
+      answers: analysis.gad7_answers,
+      totalScore: calcTotalScore(analysis.gad7_answers),
+    });
+    const pss = new this.pssModel({
+      questionnaireId: questionnaire._id,
+      answers: analysis.pss_answers,
+      totalScore: calcTotalScore(analysis.pss_answers),
+    });
+
+    questionnaire.phq9 = phq9._id;
+    questionnaire.gad7 = gad7._id;
+    questionnaire.pss = pss._id;
+
+    await Promise.all([questionnaire.save(), phq9.save(), gad7.save(), pss.save()]);
+
+    return questionnaire;
   }
 
-  async submit(
-    userId: string,
-    id: string,
-    payload: { answers: number[]; summary?: string },
-  ) {
-    const _id = new Types.ObjectId(id);
-    const doc = await this.qModel.findById(_id);
-    if (!doc) throw new NotFoundException('survey not found');
-    if (doc.userId !== userId) throw new ForbiddenException('not owner');
-    if (!isValidAnswers(payload.answers))
-      throw new BadRequestException('answers must be int[9] in 0..3');
+  // async submit(
+  //   userId: string,
+  //   id: string,
+  //   payload: { answers: number[]; summary?: string },
+  // ) {
+  //   const _id = new Types.ObjectId(id);
+  //   const doc = await this.qModel.findById(_id);
+  //   if (!doc) throw new NotFoundException('survey not found');
+  //   if (doc.userId !== userId) throw new ForbiddenException('not owner');
+  //   if (!isValidAnswers(payload.answers))
+  //     throw new BadRequestException('answers must be int[9] in 0..3');
 
-    doc.answers = payload.answers;
-    doc.totalScore = calcTotalScore(payload.answers);
-    doc.summary = payload.summary ?? '';
-    doc.status = QuestionnaireStatus.Submitted;
-    doc.submittedAt = new Date();
-    return doc.save();
-  }
+  //   doc.answers = payload.answers;
+  //   doc.totalScore = calcTotalScore(payload.answers);
+  //   doc.summary = payload.summary ?? '';
+  //   doc.status = QuestionnaireStatus.Submitted;
+  //   doc.submittedAt = new Date();
+  //   return doc.save();
+  // }
 
   listMine(userId: string, limit = 20) {
     return this.qModel
@@ -128,7 +153,7 @@ export class SurveyService {
   }
 
   async findByIdForOwner(userId: string, id: string) {
-    const doc = await this.qModel.findById(id);
+    const doc = await this.qModel.findById(id).populate(['phq9', 'gad7', 'pss']);
     if (!doc) throw new NotFoundException();
     if (doc.userId !== userId) throw new ForbiddenException();
     return doc;

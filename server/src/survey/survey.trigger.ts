@@ -49,8 +49,7 @@ export class SurveyTriggerService {
       userId: ev.userId,
       conversationId: ev.conversationId,
       reason,
-      answers: analysis.answers,
-      summary: analysis.summary,
+      analysis,
     });
 
     recentTriggerByConv.set(ev.conversationId, now);
