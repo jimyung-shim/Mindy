@@ -69,6 +69,7 @@ export class ChatGateway implements OnGatewayConnection {
         conversationId,
         clientMsgId,
         text,
+        body.dialogueStyle,
       );
       for await (const chunk of stream) {
         if (!chunk.done) {

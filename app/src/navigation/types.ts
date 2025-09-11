@@ -19,7 +19,6 @@ export type AppStackParamList = {
     Chat: {conversationId: string};
     Survey: { draftId: string };
     SurveyList: undefined;
-
 };
 
 export type RootStackParamList = {

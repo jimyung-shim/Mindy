@@ -4,7 +4,7 @@ import { ConversationRepository } from './repositories/conversation.repository';
 import { MessageRepository } from './repositories/message.repository';
 import { LlmService } from './llm.service';
 import type { StreamHandle } from './types/chat.types';
-import type { PersonaKey } from '../persona/persona.types';
+import type { PersonaKey, DialogueStyle } from '../persona/persona.types';
 import { getSystemPromptForPersona } from 'src/persona/personaPrompts';
 import { PersonaService } from 'src/persona/persona.service';
 import { SurveyTriggerService } from 'src/survey/survey.trigger';
@@ -53,6 +53,7 @@ export class ChatService {
     conversationId: string,
     clientMsgId: string,
     text: string,
+    dialogueStyle?: DialogueStyle, // [!] dialogueStyle 인자 추가
     system?: string,
   ): AsyncGenerator<StreamChunk, void, void> {
     const convId = new Types.ObjectId(conversationId);
@@ -85,6 +86,7 @@ export class ChatService {
       for await (const delta of this.llmService.streamChat(
         text,
         systemPrompt,
+        dialogueStyle,
         controller.signal,
       )) {
         assembled += delta;

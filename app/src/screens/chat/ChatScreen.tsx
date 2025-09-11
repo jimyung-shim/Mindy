@@ -40,7 +40,6 @@ export default function ChatScreen({ route }: Props) {
 
   useEffect(() => {
     let mounted = true;
-    let socket: Awaited<ReturnType<typeof getSocket>> | null = null; 
 
     const onCreated = (payload: { tempId: string; newId: string }) => {
       if (!mounted) return;
@@ -71,7 +70,7 @@ export default function ChatScreen({ route }: Props) {
       Alert.alert('오류', payload.message ?? '메시지 전송에 실패했습니다.');
     };
 
-    async function connectAndListen() {
+    async function setupScreen() {
       // 대화 내역 먼저 불러오기
       if (conversationId !== 'new' && mounted) {
         try {
@@ -82,21 +81,20 @@ export default function ChatScreen({ route }: Props) {
           if (mounted) Alert.alert('오류', '이전 대화 내역을 불러오지 못했습니다.');
         }
       }
+    }
 
-      // 소켓 연결 및 리스너 등록
-      socket = await getSocket({ onReconnect: () => {} });
-      if (!mounted) return; // 연결되는 동안 unmount 되면 리스너 등록 방지
-      
+    setupScreen();
+
+    const socket = getSocket();
+
+    // 소켓 리스너 등록
+    if (socket) {
       socket.on('conversation:created', onCreated);
       socket.on('message:ack', onAck);
       socket.on('message:stream', onStream);
       socket.on('message:complete', onComplete);
       socket.on('message:error', onError);
     }
-
-    connectAndListen();
-
-    
 
     return () => {
       mounted = false;
@@ -146,7 +144,7 @@ export default function ChatScreen({ route }: Props) {
   async function send() {
     if (!input.trim() || sending) return;
     const text = input.trim();
-    const { personaKey } = usePersona.getState();
+    const { personaKey, dialogueStyle } = usePersona.getState();
     setInput('');
     setSending(true);
 
@@ -154,13 +152,15 @@ export default function ChatScreen({ route }: Props) {
     pushMessage(conversationId, { role: 'user', text, localOnly: true });
     scrollToBottom(true);
 
-    const socket = await getSocket();
+    const socket = getSocket();
+    if(!socket) return;
     const clientMsgId = await Crypto.randomUUID();
-    socket.emit('message:create', { conversationId, clientMsgId, text, personaKey });
+    socket.emit('message:create', { conversationId, clientMsgId, text, personaKey, dialogueStyle });
   }
 
   async function cancel() {
-    const socket = await getSocket();
+    const socket = getSocket();
+    if(!socket) return;
     socket.emit('message:cancel', { conversationId });
   }
 
