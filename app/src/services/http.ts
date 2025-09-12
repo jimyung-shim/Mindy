@@ -1,10 +1,19 @@
 import { SERVER_URL } from '@env';
 import { useAuth } from '../stores/authStore';
 import { saveTokens, loadTokens } from './secure';
+import { Alert } from 'react-native';
 
 const base = (SERVER_URL?.replace(/\/$/, '') ?? 'http://localhost:3000') as string;
 
 let refreshing: Promise<void> | null = null;
+
+// 중앙 API 에러 핸들러
+function handleApiError(error: Error) {
+  // 실제 운영 앱에서는 Sentry같은 로깅 서비스에 에러를 전송할 수 있습니다.
+  console.error("API Error:", error);
+  // 사용자에게 표시되는 Alert
+  Alert.alert('오류', error.message ?? '알 수 없는 오류가 발생했습니다.');
+}
 
 async function refreshOnce() {
   if (!refreshing) {
@@ -39,25 +48,31 @@ async function refreshOnce() {
 }
 
 export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const state = useAuth.getState();
-  const headers = new Headers(init.headers ?? {});
-  if (state.accessToken) headers.set('Authorization', `Bearer ${state.accessToken}`);
+  const doFetch = (token?: string) => {
+    const headers = new Headers(init.headers ?? {});
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(base + path, { ...init, headers });
+  };
 
-const doFetch = () => fetch(base + path, { ...init, headers });
-
-  let res = await doFetch();
-  if (res.status !== 401) return res;
-
-  // 401 → refresh → 재시도(1회)
   try {
+    const state = useAuth.getState();
+    let res = await doFetch(state.accessToken);
+
+    if (res.status !== 401) {
+      if (!res.ok) throw new Error(await res.text()); // 401이 아닌 다른 에러 처리
+      return res;
+    }
+
+    // 401 에러 시 토큰 갱신
     await refreshOnce();
-    const newHeaders = new Headers(init.headers ?? {});
-    const { accessToken } = useAuth.getState();
-    if (accessToken) newHeaders.set('Authorization', `Bearer ${accessToken}`);
-    res = await fetch(base + path, { ...init, headers: newHeaders });
+    const { accessToken: newAccessToken } = useAuth.getState();
+    res = await doFetch(newAccessToken);
+    
+    if (!res.ok) throw new Error(await res.text()); // 갱신 후 재시도 실패 시 에러 처리
     return res;
-  } catch {
-    await useAuth.getState().logout();
-    return res; // 원 응답 반환(호출부에서 처리)
+
+  } catch (e: any) {
+    handleApiError(e); // 중앙 에러 핸들러 호출
+    throw e; // 에러를 다시 던져서 각 컴포넌트의 .catch 또는 finally 블록이 실행되도록 함
   }
 }
