@@ -12,14 +12,16 @@ import { useAuth } from '../../stores/authStore';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import MyInfoCard from '../../components/MyInfoCard';
 import { usePersona } from '../../stores/personaStore';
-
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 // *** 마이페이지의 모든 기능들 완성 후에 주석 풀고 아래 Props 지우기 ***
-// import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import type { AppTabParamList } from '../../navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AppTabParamList, AppStackParamList } from '../../navigation/types';
 // type Props = NativeStackScreenProps<AppTabParamList, 'MypageTab'>;
-type Props = {
-  navigation: any;
-};
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<AppTabParamList, 'MypageTab'>,
+  NativeStackScreenProps<AppStackParamList>
+>;
 
 export default function MyPageScreen({ navigation }: Props) {
   const { logout, nickname } = useAuth();
@@ -27,9 +29,14 @@ export default function MyPageScreen({ navigation }: Props) {
   // TODO: 로그인 후 사용자 프로필 상태에서 가져오세요.
   const displayName = nickname ?? '김○○';
 
-  const onEditProfile = useCallback(() => {
-    navigation.navigate('ProfileEdit'); // 존재하는 라우트명으로 변경
-  }, [navigation]);
+  // const onEditProfile = useCallback(() => {
+  //   navigation.navigate('ProfileEdit'); // 존재하는 라우트명으로 변경
+  // }, [navigation]);
+
+  // [!] 3. 아직 없는 기능은 Alert로 임시 처리
+  const onPrepareFeature = useCallback((featureName: string) => {
+    Alert.alert('알림', `${featureName} 기능은 현재 준비 중입니다.`);
+  }, []);
 
   const onLogout = useCallback(async () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠어요?', [
@@ -41,17 +48,17 @@ export default function MyPageScreen({ navigation }: Props) {
           try {
             await logout();
             clearPersona();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }], // 로그인 스택 시작 루트로 변경
-            });
+            // navigation.reset({
+            //   index: 0,
+            //   routes: [{ name: 'Login' }], // 로그인 스택 시작 루트로 변경
+            // });
           } catch (e: any) {
             Alert.alert('실패', e?.message ?? '로그아웃 실패');
           }
         },
       },
     ]);
-  }, [logout, navigation]);
+  }, [logout, navigation, clearPersona]);
 
   const sections = [
     {
@@ -67,13 +74,13 @@ export default function MyPageScreen({ navigation }: Props) {
           key: 'reservation',
           label: '예약',
           icon: <Feather name="calendar" size={20} />,
-          onPress: () => navigation.navigate('Reservation'), // 라우트명 변경
+          onPress: () => onPrepareFeature('예약') // 임시 처리
         },
         {
           key: 'about',
           label: 'About',
           icon: <Feather name="star" size={20} />,
-          onPress: () => navigation.navigate('About'), // 라우트명 변경
+          onPress: () => onPrepareFeature('About'), // 임시 처리
         },
       ],
     },
@@ -91,7 +98,7 @@ export default function MyPageScreen({ navigation }: Props) {
           key: 'settings',
           label: '설정',
           icon: <Feather name="settings" size={20} />,
-          onPress: () => navigation.navigate('Settings'), // 라우트명 변경
+          onPress: () => onPrepareFeature('설정'), // 임시처리
         },
       ],
     },
