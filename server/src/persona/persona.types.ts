@@ -76,3 +76,5 @@ export const personaLabelKorean: Record<PersonaKey, string> = {
   'RELATION+FAMILY': '대인 관계 + 가족 문제',
   'BODY+FAMILY': '신체 문제 + 가족 문제',
 };
+
+export type DialogueStyle = 'empathy' | 'solution';

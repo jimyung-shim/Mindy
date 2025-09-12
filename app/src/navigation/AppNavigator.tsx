@@ -5,16 +5,22 @@ import TabNavigator from './TabNavigator';
 import type { AppStackParamList } from './types';
 import { usePersona } from '../stores/personaStore';
 import ChatScreen from '../screens/chat/ChatScreen';
+import SurveyScreen from '../screens/survey/SurveyScreen';
+import { useSurveyPromptListener } from '../screens/chat/useSurveyPromptListener';
+import SurveyListScreen from '../screens/survey/SurveyListScreen';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppNavigator() {
+    //useSurveyPromptListener();
     const hasPersona = usePersona((s) => !!s.personaKey);
     return (
         <Stack.Navigator initialRouteName={hasPersona ? 'Tabs' : 'PersonaSelect'}>
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}/>
             <Stack.Screen name="PersonaSelect" component={PersonaSelectScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Chat" component={ChatScreen}/>
+            <Stack.Screen name="Survey" component={SurveyScreen} options={{ title: '문진표' }} />
+            <Stack.Screen name="SurveyList" component={SurveyListScreen} />
         </Stack.Navigator>
     );
 }

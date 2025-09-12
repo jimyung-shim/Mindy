@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import CategoryGrid from '../../components/CategoryGrid';
 import SelectionHint from '../../components/SelectionHint';
 import PrimaryButton from '../../components/PrimaryButton';
 import { CATEGORIES, CategoryKey } from '../../services/persona';
 import { assignPersona } from '../../services/api';
-import { usePersona } from '../../stores/personaStore';
+import { usePersona, type DialogueStyle } from '../../stores/personaStore';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
+import CategoryChip from '../../components/CategoryChip';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'PersonaSelect'>;
 
@@ -17,7 +18,7 @@ const MAX = 4;
 export default function PersonaSelectScreen({ navigation }: Props) {
     const [selected, setSelected] = useState<CategoryKey[]>([]);
     const [loading, setLoading] = useState(false);
-    const setPersona = usePersona((s) => s.setPersona);
+    const { setPersona, dialogueStyle, setDialogueStyle } = usePersona(); 
 
 
     const onSubmit = async () => {
@@ -49,6 +50,24 @@ export default function PersonaSelectScreen({ navigation }: Props) {
                 onChange={setSelected}
             />
             <SelectionHint count={selected.length} max={MAX} helper="고민되는 주제를 골라 주세요" />
+            
+            {/* --- 대화 스타일 선택 --- */}
+            <View style={{ marginTop: 24, marginBottom: 8 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 12 }}>어떤 스타일의 대화를 원하세요?</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <CategoryChip
+                        label="따뜻한 공감 위주"
+                        selected={dialogueStyle === 'empathy'}
+                        onPress={() => setDialogueStyle('empathy')}
+                    />
+                    <CategoryChip
+                        label="현실적인 해결책 위주"
+                        selected={dialogueStyle === 'solution'}
+                        onPress={() => setDialogueStyle('solution')}
+                    />
+                </View>
+            </View>
+
             <PrimaryButton 
                 title={loading ? '처리 중...' : '계속'}
                 onPress={onSubmit} 

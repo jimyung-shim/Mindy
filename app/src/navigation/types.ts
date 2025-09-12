@@ -17,6 +17,8 @@ export type AppStackParamList = {
     Tabs: NavigatorScreenParams<AppTabParamList> | undefined;
     PersonaSelect: undefined;
     Chat: {conversationId: string};
+    Survey: { draftId: string };
+    SurveyList: undefined;
 };
 
 export type RootStackParamList = {

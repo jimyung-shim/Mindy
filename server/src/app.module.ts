@@ -14,6 +14,8 @@ import { AgentService } from './agent/agent.service';
 import { McpModule } from './mcp/mcp.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ChatModule } from './chat/chat.module';
+import { SurveyModule } from './survey/survey.module';
+import { RiskModule } from './risk/risk.module';
 
 const envSchema: ObjectSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
@@ -43,6 +45,8 @@ const envSchema: ObjectSchema = Joi.object({
     AuthModule,
     McpModule,
     PersonaToolModule,
+    SurveyModule,
+    RiskModule,
   ],
   controllers: [PersonaController],
   providers: [
