@@ -1,21 +1,18 @@
 import {
   Injectable,
-  BadRequestException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Model, Types, Connection } from 'mongoose';
 import {
   Questionnaire,
-  QuestionnaireStatus,
   TriggerReason,
 } from '../chat/schemas/questionnaire.schema';
 import { Phq9 } from '../chat/schemas/phq9.schema';
 import { Gad7 } from '../chat/schemas/gad7.schema';
 import { Pss } from '../chat/schemas/pss.schema';
 import {
-  isValidAnswers,
   calcTotalScore,
   PHQ9_QUESTIONS,
   GAD7_QUESTIONS,
@@ -27,6 +24,7 @@ import { MessageRepository } from 'src/chat/repositories/message.repository';
 @Injectable()
 export class SurveyService {
   constructor(
+    @InjectConnection() private readonly connection: Connection, // DB Connection 주입
     @InjectModel(Questionnaire.name)
     private readonly qModel: Model<Questionnaire>,
     @InjectModel(Phq9.name) private readonly phq9Model: Model<Phq9>,
@@ -72,7 +70,10 @@ export class SurveyService {
       // 파싱 실패 시 기본값 반환
     }
     return {
-      summary: '분석 실패', phq9_answers: Array(9).fill(0), gad7_answers: Array(7).fill(0), pss_answers: Array(10).fill(0)
+      summary: '분석 실패',
+      phq9_answers: Array(9).fill(0),
+      gad7_answers: Array(7).fill(0),
+      pss_answers: Array(10).fill(0),
     };
   }
 
@@ -85,7 +86,8 @@ export class SurveyService {
       phq9_answers: number[];
       gad7_answers: number[];
       pss_answers: number[];
-    };  }) {
+    };
+  }) {
     const { userId, conversationId, reason, analysis } = params;
 
     const exists = await this.qModel.findOne({
@@ -95,34 +97,55 @@ export class SurveyService {
     });
     if (exists) return exists;
 
-    const questionnaire = new this.qModel({
-      userId, conversationId, reason, summary: analysis.summary,
-      status: 'draft', generatedAt: new Date(),
-    });
+    // 트랜잭션 시작
+    // const session = await this.connection.startSession();
+    // session.startTransaction();
+    try {
+      const questionnaire = new this.qModel({
+        userId,
+        conversationId,
+        reason,
+        summary: analysis.summary,
+        status: 'draft',
+        generatedAt: new Date(),
+      });
 
-    const phq9 = new this.phq9Model({
-      questionnaireId: questionnaire._id,
-      answers: analysis.phq9_answers,
-      totalScore: calcTotalScore(analysis.phq9_answers),
-    });
-    const gad7 = new this.gad7Model({
-      questionnaireId: questionnaire._id,
-      answers: analysis.gad7_answers,
-      totalScore: calcTotalScore(analysis.gad7_answers),
-    });
-    const pss = new this.pssModel({
-      questionnaireId: questionnaire._id,
-      answers: analysis.pss_answers,
-      totalScore: calcTotalScore(analysis.pss_answers),
-    });
+      const phq9 = new this.phq9Model({
+        questionnaireId: questionnaire._id,
+        answers: analysis.phq9_answers,
+        totalScore: calcTotalScore(analysis.phq9_answers),
+      });
+      const gad7 = new this.gad7Model({
+        questionnaireId: questionnaire._id,
+        answers: analysis.gad7_answers,
+        totalScore: calcTotalScore(analysis.gad7_answers),
+      });
+      const pss = new this.pssModel({
+        questionnaireId: questionnaire._id,
+        answers: analysis.pss_answers,
+        totalScore: calcTotalScore(analysis.pss_answers),
+      });
 
-    questionnaire.phq9 = phq9._id;
-    questionnaire.gad7 = gad7._id;
-    questionnaire.pss = pss._id;
+      questionnaire.phq9 = phq9._id;
+      questionnaire.gad7 = gad7._id;
+      questionnaire.pss = pss._id;
 
-    await Promise.all([questionnaire.save(), phq9.save(), gad7.save(), pss.save()]);
+      // 세션을 사용하여 모든 문서를 저장
+      await Promise.all([
+        questionnaire.save({}),
+        phq9.save({}),
+        gad7.save({}),
+        pss.save({}),
+      ]);
 
-    return questionnaire;
+      //await session.commitTransaction(); // 모든 작업 성공 시 최종 반영
+      return questionnaire;
+    } catch (error) {
+      //await session.abortTransaction(); // 중간에 오류 발생 시 모든 작업 롤백
+      throw error;
+    } finally {
+      //session.endSession(); // 세션 종료
+    }
   }
 
   // async submit(
@@ -153,16 +176,33 @@ export class SurveyService {
   }
 
   async findByIdForOwner(userId: string, id: string) {
-    const doc = await this.qModel.findById(id).populate(['phq9', 'gad7', 'pss']);
+    const doc = await this.qModel
+      .findById(id)
+      .populate(['phq9', 'gad7', 'pss']);
     if (!doc) throw new NotFoundException();
     if (doc.userId !== userId) throw new ForbiddenException();
     return doc;
   }
 
   async deleteForOwner(userId: string, id: string): Promise<void> {
-    const doc = await this.qModel.findById(id);
-    if (!doc) throw new NotFoundException();
-    if (doc.userId !== userId) throw new ForbiddenException();
-    await this.qModel.deleteOne({ _id: new Types.ObjectId(id) });
+    try {
+      const doc = await this.qModel.findById(id); // .session(session) 제거
+      if (!doc) throw new NotFoundException();
+      if (doc.userId !== userId) throw new ForbiddenException();
+
+      await Promise.all([
+        this.phq9Model.deleteOne({ _id: doc.phq9 }),
+        this.gad7Model.deleteOne({ _id: doc.gad7 }),
+        this.pssModel.deleteOne({ _id: doc.pss }),
+        this.qModel.deleteOne({ _id: new Types.ObjectId(id) }),
+      ]);
+
+      // await session.commitTransaction();
+    } catch(error) {
+      // await session.abortTransaction();
+      throw error;
+    } finally {
+      // session.endSession();
+    }
   }
 }
