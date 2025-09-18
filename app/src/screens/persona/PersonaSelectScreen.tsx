@@ -6,7 +6,7 @@ import SelectionHint from '../../components/SelectionHint';
 import PrimaryButton from '../../components/PrimaryButton';
 import { CATEGORIES, CategoryKey } from '../../services/persona';
 import { assignPersona } from '../../services/api';
-import { usePersona, type DialogueStyle } from '../../stores/personaStore';
+import { usePersona, type DialogueStyle, type ChatAtmosphere, type CounselingStyle } from '../../stores/personaStore';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '../../navigation/types';
 import CategoryChip from '../../components/CategoryChip';
@@ -18,8 +18,15 @@ const MAX = 4;
 export default function PersonaSelectScreen({ navigation }: Props) {
     const [selected, setSelected] = useState<CategoryKey[]>([]);
     const [loading, setLoading] = useState(false);
-    const { setPersona, dialogueStyle, setDialogueStyle } = usePersona(); 
+    const {
+        setPersona,
+        dialogueStyle, setDialogueStyle,
+        chatAtmosphere, setChatAtmosphere,
+        counselingStyle, setCounselingStyle,
+    } = usePersona(); 
 
+    // 모든 선택이 완료되었는지 확인하는 변수
+    const allOptionsSelected = dialogueStyle && chatAtmosphere && counselingStyle;
 
     const onSubmit = async () => {
         try {
@@ -64,6 +71,40 @@ export default function PersonaSelectScreen({ navigation }: Props) {
                         label="현실적인 해결책 위주"
                         selected={dialogueStyle === 'solution'}
                         onPress={() => setDialogueStyle('solution')}
+                    />
+                </View>
+            </View>
+
+            {/* --- [!] 2. 상담 분위기 선택 (추가) --- */}
+            <View style={{ marginTop: 16, marginBottom: 8 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 12 }}>어떤 분위기에서 상담하고 싶으세요?</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <CategoryChip
+                        label="차분하고 안정감있는"
+                        selected={chatAtmosphere === 'calm'}
+                        onPress={() => setChatAtmosphere('calm')}
+                    />
+                    <CategoryChip
+                        label="활기차고 밝은"
+                        selected={chatAtmosphere === 'bright'}
+                        onPress={() => setChatAtmosphere('bright')}
+                    />
+                </View>
+            </View>
+
+            {/* --- [!] 3. 상담 방식 선택 (추가) --- */}
+            <View style={{ marginTop: 16, marginBottom: 8 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', marginBottom: 12 }}>어떤 방식의 상담을 선호하세요?</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <CategoryChip
+                        label="질문을 많이 해주는"
+                        selected={counselingStyle === 'questioning'}
+                        onPress={() => setCounselingStyle('questioning')}
+                    />
+                    <CategoryChip
+                        label="이야기를 잘 들어주는"
+                        selected={counselingStyle === 'listening'}
+                        onPress={() => setCounselingStyle('listening')}
                     />
                 </View>
             </View>

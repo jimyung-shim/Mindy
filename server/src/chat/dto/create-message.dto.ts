@@ -1,5 +1,10 @@
 import { IsOptional, IsString, Length } from 'class-validator';
-import type { PersonaKey, DialogueStyle } from 'src/persona/persona.types';
+import type {
+  PersonaKey,
+  DialogueStyle,
+  ChatAtmosphere,
+  CounselingStyle,
+} from 'src/persona/persona.types';
 
 export class CreateMessageDto {
   @IsString()
@@ -20,4 +25,12 @@ export class CreateMessageDto {
   @IsOptional()
   @IsString()
   dialogueStyle?: DialogueStyle;
+
+  @IsOptional()
+  @IsString()
+  chatAtmosphere?: ChatAtmosphere;
+
+  @IsOptional()
+  @IsString()
+  counselingStyle?: CounselingStyle;
 }

@@ -144,7 +144,7 @@ export default function ChatScreen({ route }: Props) {
   async function send() {
     if (!input.trim() || sending) return;
     const text = input.trim();
-    const { personaKey, dialogueStyle } = usePersona.getState();
+    const { personaKey, dialogueStyle, chatAtmosphere, counselingStyle } = usePersona.getState();
     setInput('');
     setSending(true);
 

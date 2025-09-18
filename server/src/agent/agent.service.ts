@@ -6,21 +6,10 @@ import { imageUrlFor, labelFor } from '../persona/persona.images';
 import { z } from 'zod';
 
 const PERSONA_ENUM: PersonaKey[] = [
-  'ECONOMY',
-  'JOB',
-  'RELATION',
-  'BODY',
-  'FAMILY',
-  'ECONOMY+JOB',
-  'ECONOMY+RELATION',
-  'ECONOMY+BODY',
-  'ECONOMY+FAMILY',
-  'JOB+RELATION',
-  'JOB+BODY',
-  'JOB+FAMILY',
-  'RELATION+BODY',
-  'RELATION+FAMILY',
-  'BODY+FAMILY',
+  'HEALTH',
+  'RELATIONSHIP',
+  'ECONOMY_JOB',
+  'LIFE',
 ] as const;
 
 // Zod 스키마 (런타임 검증)
@@ -86,7 +75,7 @@ export class AgentService {
   private async assignViaOpenAI(categories: string[]): Promise<AssignResponse> {
     // 시스템 지시 + 입력
     const system = [
-      '너는 사용자 선택 카테고리를 기반으로 상담 페르소나를 1개 배정한다.',
+      '너는 사용자 선택 카테고리를 기반으로 4가지 상담 페르소나(HEALTH, RELATIONSHIP, ECONOMY_JOB, LIFE) 중 1개를 배정한다.',
       '반드시 제공된 enum 중 하나의 personaKey를 선택한다.',
       'reason은 한국어로 1~2문장, 간결하게 배정 근거를 요약한다.',
     ].join('\n');
