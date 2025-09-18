@@ -52,3 +52,5 @@ export const personaLabelKorean: Record<PersonaKey, string> = {
 };
 
 export type DialogueStyle = 'empathy' | 'solution';
+export type ChatAtmosphere = 'calm' | 'bright';
+export type CounselingStyle = 'questioning' | 'listening';
