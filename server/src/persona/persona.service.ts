@@ -1,84 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import type { Axis, CategoryKey, PersonaKey } from './persona.types';
+import type { CategoryKey, PersonaKey } from './persona.types';
 import { personaLabelKorean } from './persona.types';
 import { getSystemPromptForPersona } from './personaPrompts';
 
-const MAP: Record<CategoryKey, [Axis, number][]> = {
-  RELATION_BULLYING: [['RELATION', 3]],
-  SELF_PERSONALITY: [['RELATION', 2]],
-  MENTAL_HEALTH: [['RELATION', 2]],
-  FAMILY: [
-    ['FAMILY', 3],
-    ['RELATION', 1],
-  ],
-  WORKPLACE: [
-    ['JOB', 2],
-    ['RELATION', 1],
-  ],
-  PARENTING: [['FAMILY', 2]],
-  CAREER: [
-    ['JOB', 3],
-    ['ECONOMY', 1],
-  ],
-  ROMANCE: [['RELATION', 2]],
-  BREAKUP_DIVORCE: [
-    ['RELATION', 2],
-    ['FAMILY', 1],
-  ],
-  STUDY: [['JOB', 2]],
-  MARRIAGE: [
-    ['FAMILY', 2],
-    ['RELATION', 1],
-  ],
-  LGBT: [['RELATION', 2]],
-  PHYSICAL_HEALTH: [['BODY', 3]],
-  SEX_CRIME: [
-    ['RELATION', 2],
-    ['BODY', 2],
-  ],
-  APPEARANCE: [
-    ['RELATION', 1],
-    ['BODY', 1],
-  ],
-  SEX_LIFE: [
-    ['BODY', 2],
-    ['RELATION', 1],
-  ],
-  FINANCE_BUSINESS: [
-    ['ECONOMY', 3],
-    ['JOB', 1],
-  ],
-  PET_LOSS: [
-    ['FAMILY', 2],
-    ['RELATION', 1],
-  ],
-};
+const categoryToPersonaMap: Record<CategoryKey, PersonaKey> = {
+  // 건강
+  MENTAL_HEALTH: 'HEALTH',
+  PHYSICAL_HEALTH: 'HEALTH',
+  APPEARANCE: 'HEALTH',
 
-const SINGLE: Record<Axis, PersonaKey> = {
-  ECONOMY: 'ECONOMY',
-  JOB: 'JOB',
-  RELATION: 'RELATION',
-  BODY: 'BODY',
-  FAMILY: 'FAMILY',
-};
+  // 관계
+  FAMILY: 'RELATIONSHIP',
+  BREAKUP_DIVORCE: 'RELATIONSHIP',
+  MARRIAGE: 'RELATIONSHIP',
+  RELATION_BULLYING: 'RELATIONSHIP',
+  PET_LOSS: 'RELATIONSHIP',
+  ROMANCE: 'RELATIONSHIP',
+  PARENTING: 'RELATIONSHIP',
 
-const ALL_PAIRS: PersonaKey[] = [
-  'ECONOMY+JOB',
-  'ECONOMY+RELATION',
-  'ECONOMY+BODY',
-  'ECONOMY+FAMILY',
-  'JOB+RELATION',
-  'JOB+BODY',
-  'JOB+FAMILY',
-  'RELATION+BODY',
-  'RELATION+FAMILY',
-  'BODY+FAMILY',
-];
+  // 경제/직업
+  WORKPLACE: 'ECONOMY_JOB',
+  STUDY: 'ECONOMY_JOB',
+  FINANCE_BUSINESS: 'ECONOMY_JOB',
+  CAREER: 'ECONOMY_JOB',
 
-const toPairKey = (a: Axis, b: Axis): PersonaKey | null => {
-  const [x, y] = [a, b].sort() as [Axis, Axis];
-  const k = `${x}+${y}` as PersonaKey;
-  return ALL_PAIRS.includes(k) ? k : null;
+  // 생활
+  SELF_PERSONALITY: 'LIFE',
+  SEX_CRIME: 'LIFE',
+  SEX_LIFE: 'LIFE',
+  LGBT: 'LIFE',
 };
 
 export type AssignResult = {
@@ -90,36 +40,44 @@ export type AssignResult = {
 @Injectable()
 export class PersonaService {
   assign(categories: CategoryKey[]): AssignResult {
-    const score = new Map<Axis, number>([
-      ['ECONOMY', 0],
-      ['JOB', 0],
-      ['RELATION', 0],
-      ['BODY', 0],
-      ['FAMILY', 0],
-    ]);
-    for (const c of categories)
-      for (const [axis, w] of MAP[c] ?? [])
-        score.set(axis, (score.get(axis) ?? 0) + w);
-
-    const ranked = [...score.entries()]
-      .filter(([, v]) => v > 0)
-      .sort((a, b) => b[1] - a[1]);
-    const [t1, t2] = [ranked[0], ranked[1]];
-
-    let personaKey: PersonaKey;
-    if (t1 && t2 && t2[1] > 0 && !(t2[1] * 2 <= t1[1])) {
-      personaKey = toPairKey(t1[0], t2[0]) ?? SINGLE[t1[0]];
-    } else if (t1) {
-      personaKey = SINGLE[t1[0]];
-    } else {
-      personaKey = 'RELATION';
+    if (!categories || categories.length === 0) {
+      // 선택된 카테고리가 없을 경우 기본 페르소나 '관계' 배정
+      return {
+        personaKey: 'RELATIONSHIP',
+        personaLabel: personaLabelKorean.RELATIONSHIP,
+        reason: '상담할 주제를 선택하여 더 꼭 맞는 상담사를 만나보세요.',
+      };
     }
 
-    const label = personaLabelKorean[personaKey];
-    const reason = personaKey.includes('+')
-      ? `선택 항목이 ${label} 축에 고르게 분포하여 조합형을 배정했어요.`
-      : `선택 항목이 '${label}' 축에 가장 강하게 모여 단일형을 배정했어요.`;
-    return { personaKey, personaLabel: label, reason };
+    const scores: Record<PersonaKey, number> = {
+      HEALTH: 0,
+      RELATIONSHIP: 0,
+      ECONOMY_JOB: 0,
+      LIFE: 0,
+    };
+
+    for (const category of categories) {
+      const persona = categoryToPersonaMap[category];
+      if (persona) {
+        scores[persona]++;
+      }
+    }
+
+    // 가장 높은 점수를 받은 페르소나를 찾음
+    let highestScore = -1;
+    let finalPersonaKey: PersonaKey = 'RELATIONSHIP'; // 기본값
+
+    // 점수가 높은 순으로 정렬하여 동점일 경우 우선순위(아래 배열 순서)를 가짐
+    const sortedPersonas = Object.entries(scores).sort(([, a], [, b]) => b - a);
+
+    if (sortedPersonas.length > 0 && sortedPersonas[0][1] > 0) {
+      finalPersonaKey = sortedPersonas[0][0] as PersonaKey;
+    }
+
+    const label = personaLabelKorean[finalPersonaKey];
+    const reason = `선택하신 고민들을 바탕으로 '${label}' 페르소나를 배정해 드렸어요.`;
+
+    return { personaKey: finalPersonaKey, personaLabel: label, reason };
   }
 
   getSystemPrompt(key?: PersonaKey | null): string {
