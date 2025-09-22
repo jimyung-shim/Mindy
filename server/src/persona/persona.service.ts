@@ -54,6 +54,7 @@ export class PersonaService {
       RELATIONSHIP: 0,
       ECONOMY_JOB: 0,
       LIFE: 0,
+      CBT: 0,
     };
 
     for (const category of categories) {

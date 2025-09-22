@@ -6,6 +6,7 @@ export const fileNameByKey: Record<PersonaKey, string> = {
   RELATIONSHIP: 'relationship.png',
   ECONOMY_JOB: 'economy_job.png',
   LIFE: 'life.png',
+  CBT: 'cbt.png',
 };
 
 export function imageUrlFor(key: PersonaKey): string {
