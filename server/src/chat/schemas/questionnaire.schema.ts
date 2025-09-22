@@ -36,6 +36,9 @@ export class Questionnaire {
   @Prop({ type: Types.ObjectId, ref: 'Pss' })
   pss?: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Cbt' })
+  cbt?: Types.ObjectId;
+
   @Prop({
     type: String,
     enum: QuestionnaireStatus,
