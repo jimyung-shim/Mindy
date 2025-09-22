@@ -1,6 +1,11 @@
 export type Axis = 'ECONOMY' | 'JOB' | 'RELATION' | 'BODY' | 'FAMILY';
 
-export type PersonaKey = 'HEALTH' | 'RELATIONSHIP' | 'ECONOMY_JOB' | 'LIFE';
+export type PersonaKey =
+  | 'HEALTH'
+  | 'RELATIONSHIP'
+  | 'ECONOMY_JOB'
+  | 'LIFE'
+  | 'CBT';
 
 export type CategoryKey =
   | 'RELATION_BULLYING'
@@ -49,6 +54,7 @@ export const personaLabelKorean: Record<PersonaKey, string> = {
   RELATIONSHIP: '관계',
   ECONOMY_JOB: '경제/직업',
   LIFE: '생활',
+  CBT: '인지행동치료',
 };
 
 export type DialogueStyle = 'empathy' | 'solution';
