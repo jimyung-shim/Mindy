@@ -12,6 +12,7 @@ import {
 import { Phq9 } from '../chat/schemas/phq9.schema';
 import { Gad7 } from '../chat/schemas/gad7.schema';
 import { Pss } from '../chat/schemas/pss.schema';
+import { Cbt } from '../chat/schemas/cbt.schema';
 import {
   calcTotalScore,
   PHQ9_QUESTIONS,
@@ -30,6 +31,7 @@ export class SurveyService {
     @InjectModel(Phq9.name) private readonly phq9Model: Model<Phq9>,
     @InjectModel(Gad7.name) private readonly gad7Model: Model<Gad7>,
     @InjectModel(Pss.name) private readonly pssModel: Model<Pss>,
+    @InjectModel(Cbt.name) private readonly cbtModel: Model<Cbt>,
     private readonly llmService: LlmService,
     private readonly messageRepository: MessageRepository,
   ) {}
@@ -50,6 +52,14 @@ export class SurveyService {
       `2. "phq9_answers": An array of 9 integers (0-3) for the PHQ-9 questions. Questions are: ${JSON.stringify(PHQ9_QUESTIONS)}`,
       `3. "gad7_answers": An array of 7 integers (0-3) for the GAD-7 questions. Questions are: ${JSON.stringify(GAD7_QUESTIONS)}`,
       `4. "pss_answers": An array of 10 integers (0-4) for the PSS questions. Questions are: ${JSON.stringify(PSS_QUESTIONS)}`,
+      `5. "cbt_analysis": An object with these keys:
+          - "situation": string
+          - "emotion": { name: string, intensity: number }
+          - "automatic_thought": string
+          - "supporting_evidence": string[]
+          - "counter_evidence": string[]
+          - "alternative_thoughts": string[]
+          - "emotion_after_alternative": { name: string, intensity: number }`,
       'Return ONLY the raw JSON object.',
     ].join('\n');
 
@@ -62,7 +72,8 @@ export class SurveyService {
       if (
         result.phq9_answers?.length === 9 &&
         result.gad7_answers?.length === 7 &&
-        result.pss_answers?.length === 10
+        result.pss_answers?.length === 10 &&
+        result.cbt_analysis
       ) {
         return result;
       }
@@ -74,6 +85,15 @@ export class SurveyService {
       phq9_answers: Array(9).fill(0),
       gad7_answers: Array(7).fill(0),
       pss_answers: Array(10).fill(0),
+      cbt_analysis: {
+        situation: '',
+        emotion: { name: '', intensity: 0 },
+        automatic_thought: '',
+        supporting_evidence: [],
+        counter_evidence: [],
+        alternative_thoughts: [],
+        emotion_after_alternative: { name: '', intensity: 0 },
+      },
     };
   }
 
@@ -86,6 +106,7 @@ export class SurveyService {
       phq9_answers: number[];
       gad7_answers: number[];
       pss_answers: number[];
+      cbt_analysis: any;
     };
   }) {
     const { userId, conversationId, reason, analysis } = params;
@@ -125,10 +146,15 @@ export class SurveyService {
         answers: analysis.pss_answers,
         totalScore: calcTotalScore(analysis.pss_answers),
       });
+      const cbt = new this.cbtModel({
+        questionnaireId: questionnaire._id,
+        ...analysis.cbt_analysis,
+      });
 
       questionnaire.phq9 = phq9._id;
       questionnaire.gad7 = gad7._id;
       questionnaire.pss = pss._id;
+      questionnaire.cbt = cbt._id as Types.ObjectId;
 
       // 세션을 사용하여 모든 문서를 저장
       await Promise.all([
@@ -136,6 +162,7 @@ export class SurveyService {
         phq9.save({}),
         gad7.save({}),
         pss.save({}),
+        cbt.save({}),
       ]);
 
       //await session.commitTransaction(); // 모든 작업 성공 시 최종 반영
@@ -178,7 +205,7 @@ export class SurveyService {
   async findByIdForOwner(userId: string, id: string) {
     const doc = await this.qModel
       .findById(id)
-      .populate(['phq9', 'gad7', 'pss']);
+      .populate(['phq9', 'gad7', 'pss', 'cbt']);
     if (!doc) throw new NotFoundException();
     if (doc.userId !== userId) throw new ForbiddenException();
     return doc;
@@ -194,11 +221,12 @@ export class SurveyService {
         this.phq9Model.deleteOne({ _id: doc.phq9 }),
         this.gad7Model.deleteOne({ _id: doc.gad7 }),
         this.pssModel.deleteOne({ _id: doc.pss }),
+        this.cbtModel.deleteOne({ _id: doc.cbt }),
         this.qModel.deleteOne({ _id: new Types.ObjectId(id) }),
       ]);
 
       // await session.commitTransaction();
-    } catch(error) {
+    } catch (error) {
       // await session.abortTransaction();
       throw error;
     } finally {

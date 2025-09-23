@@ -1,5 +1,5 @@
-export type SurveyStatus = 'draft' | 'submitted';
-export type SurveyReason = 'risk' | 'turns';
+export type SurveyStatus = "draft" | "submitted";
+export type SurveyReason = "risk" | "turns";
 
 // 단일 검사 결과 타입
 type SurveyResult = {
@@ -18,7 +18,7 @@ export type SurveyDraftResponse = {
 
 export type SurveySubmitResponse = {
   id: string;
-  status: 'submitted';
+  status: "submitted";
   totalScore: number;
   submittedAt: string;
 };
@@ -32,6 +32,16 @@ export type SurveyMineItem = {
   reason: SurveyReason;
 };
 
+export type CbtAnalysis = {
+  situation: string;
+  emotion: { name: string; intensity: number };
+  automaticThought: string;
+  supportingEvidence: string[];
+  counterEvidence: string[];
+  alternativeThoughts: string[];
+  emotionAfterAlternative: { name: string; intensity: number };
+};
+
 export type SurveyDetail = {
   id: string;
   conversationId: string;
@@ -43,4 +53,5 @@ export type SurveyDetail = {
   phq9?: SurveyResult;
   gad7?: SurveyResult;
   pss?: SurveyResult;
+  cbt?: CbtAnalysis;
 };
