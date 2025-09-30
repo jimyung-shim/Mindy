@@ -18,6 +18,7 @@ import { SurveyModule } from './survey/survey.module';
 import { RiskModule } from './risk/risk.module';
 
 const envSchema: ObjectSchema = Joi.object({
+  MONGO_URI: Joi.string().uri().required(),
   DATABASE_URL: Joi.string().uri().required(),
   PORT: Joi.number().default(3000),
   CORS_ORIGIN: Joi.string().allow(''),
@@ -30,16 +31,16 @@ const envSchema: ObjectSchema = Joi.object({
 
 @Module({
   imports: [
-    MongooseModule.forRoot(process.env.MONGO_URI!, {
-      serverSelectionTimeoutMS: 5000,
-    }),
-    ChatModule,
-    ThrottlerModule.forRoot([{ ttl: 60, limit: 30 }]), // 1분 30회
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       validationSchema: envSchema,
     }),
+    MongooseModule.forRoot(process.env.MONGO_URI!, {
+      serverSelectionTimeoutMS: 5000,
+    }),
+    ChatModule,
+    ThrottlerModule.forRoot([{ ttl: 60, limit: 30 }]), // 1분 30회
     PrismaModule,
     UserModule,
     AuthModule,
