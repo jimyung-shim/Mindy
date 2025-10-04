@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useAuth } from './src/stores/authStore';
 import RootNavigator from './src/navigation/RootNavigator';
-
+import CustomDrawer from './src/components/common/CustomDrawer';
 
 function Splash() {
   return (
@@ -24,5 +24,10 @@ export default function App() {
 
 
   if (!hydrated) return <Splash />;
-  return <RootNavigator />;
+  return (
+    <>
+      <RootNavigator />
+      <CustomDrawer />
+    </>
+  );
 }

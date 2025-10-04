@@ -10,6 +10,7 @@ import type { AppTabParamList, AppStackParamList } from '../../navigation/types'
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import ConversationListItem from '../../components/chat/ConversationListItem';
+import Header from '../../components/common/Header';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, 'ChatListTab'>,
@@ -44,13 +45,13 @@ export default function ChatListScreen({navigation}: Props) {
           onPress={load}
           disabled={refreshing}
           accessibilityLabel="대화목록 새로고침"
-          style={{ paddingHorizontal: 12, paddingVertical: 6, opacity: refreshing ? 0.5 : 1 }}
+          style={{ marginRight: 16, padding: 4, opacity: refreshing ? 0.5 : 1 }}
         >
-          <Ionicons name="refresh" size={22} /* color={colors.text} */ />
+          <Ionicons name="refresh" size={24} color={colors.text}  />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, refreshing]); // refreshing 바뀌면 버튼 상태 갱신
+  }, [navigation, refreshing, load]); // refreshing 바뀌면 버튼 상태 갱신
 
   async function onNewChat() {
     navigation.navigate('Chat', { conversationId: 'new' });
@@ -78,7 +79,20 @@ export default function ChatListScreen({navigation}: Props) {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
+    <View style={{ flex: 1, padding: 16, gap: 12, backgroundColor:'white' }}>
+      <Header
+        title="채팅 목록"
+        headerRight={ // [!] headerRight prop을 직접 전달
+          <TouchableOpacity
+            onPress={load}
+            disabled={refreshing}
+            accessibilityLabel="대화목록 새로고침"
+            style={{ marginRight: 16, padding: 4, opacity: refreshing ? 0.5 : 1 }}
+          >
+            <Ionicons name="refresh" size={24} color={colors.text} />
+          </TouchableOpacity>
+        }
+      />
       <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8 }}>
         <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>새 대화 시작</Text>
       </TouchableOpacity>
