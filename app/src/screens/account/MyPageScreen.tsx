@@ -173,7 +173,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop:10
   },
   header: {
     paddingHorizontal: 20,

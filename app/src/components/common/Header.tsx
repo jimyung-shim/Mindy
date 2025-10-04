@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    marginTop: 30
   },
   container: {
     height: 56,
