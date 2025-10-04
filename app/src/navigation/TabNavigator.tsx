@@ -30,7 +30,7 @@ export default function TabNavigator() {
                 },
             })}
         >
-            <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: '홈' }} />
+            <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'Mindy' }} />
             <Tab.Screen name="ChatListTab" component={ChatListScreen} options={{ title: '채팅' }} />
             <Tab.Screen name="ReserveTab" component={ReservationScreen} options={{ title: '예약' }} />
             <Tab.Screen name="MypageTab" component={MyPageScreen} options={{ title: '마이페이지' }} />
