@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Alert, TouchableOpacity } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import { usePersona } from '../../stores/personaStore';
 import { colors } from '../../theme/colors';
@@ -15,6 +15,8 @@ import ChatShortcut from '../../components/home/shortcuts/ChatShortcut';
 import CounselorShortcut from '../../components/home/shortcuts/CounselorShortcut';
 import ReportShortcut from '../../components/home/shortcuts/ReportShortcut';
 import Header from '../../components/common/Header';
+import { useDrawerStore } from '../../stores/drawerStore';
+import { Ionicons } from '@expo/vector-icons';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<AppTabParamList, 'HomeTab'>,
@@ -28,6 +30,7 @@ type Props = {
 export default function HomeScreen({ navigation }: Props) {
   const { personaLabel, imageUrl, reason } = usePersona();
   const nickname = useAuth((s) => s.nickname);
+  const { openDrawer } = useDrawerStore(); // store에서 openDrawer 함수 가져오기
 
   // 채팅 화면으로 바로 이동
   const handleNewChatPress = () => {
@@ -43,6 +46,11 @@ export default function HomeScreen({ navigation }: Props) {
     navigation.navigate('SurveyList');
   };
 
+  // 메뉴 버튼을 누르면 store의 openDrawer 함수 호출
+  const handleProfilePress = () => {
+    openDrawer();
+  };
+
   useEffect(() => {
     if (!imageUrl) {
       // 페르소나 미배정 상태면 곧장 선택 화면으로 유도
@@ -51,8 +59,16 @@ export default function HomeScreen({ navigation }: Props) {
   }, [imageUrl, navigation]);
 
   return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <Header
+        title="Mindy"
+        headerLeft={
+          <TouchableOpacity onPress={handleProfilePress} style={{ padding: 8, marginLeft: 8 }}>
+            <Ionicons name="menu" size={26} color={colors.text} />
+          </TouchableOpacity>
+        }
+      />
     <ScreenContainer>
-      <Header title="Mindy"></Header>
       {/* --- 환영 메시지 --- */}
       <Text style={styles.welcomeTitle}>안녕하세요, {nickname ?? '마인디'}님 :)</Text>
       <Text style={styles.welcomeSubtitle}>오늘도 가볍게 마음을 체크해 보세요.</Text>
@@ -101,6 +117,7 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
 
     </ScreenContainer>
+    </View>
   );
 }
 

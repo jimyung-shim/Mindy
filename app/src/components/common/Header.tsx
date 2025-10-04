@@ -7,22 +7,27 @@ import { colors } from '../../theme/colors';
 type Props = {
   title: string;
   canGoBack?: boolean;
+  headerLeft?: React.ReactNode;
   headerRight?: React.ReactNode;
 };
 
-export default function Header({ title, canGoBack, headerRight }: Props) {
+export default function Header({ title, canGoBack, headerLeft, headerRight }: Props) {
   const navigation = useNavigation();
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.left}>
-          {canGoBack && (
+          {/* [!] headerLeft가 있으면 렌더링, 없으면 canGoBack 확인 */}
+          {headerLeft ? (
+            headerLeft
+          ) : canGoBack ? (
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
               <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
+
         <View style={styles.center}>
           <Text style={styles.title}>{title}</Text>
         </View>
