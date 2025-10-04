@@ -28,6 +28,7 @@ export default function HomeScreen({ navigation }: Props) {
   const { personaLabel, imageUrl, reason } = usePersona();
   const nickname = useAuth((s) => s.nickname);
 
+  // 채팅 화면으로 바로 이동
   const handleNewChatPress = () => {
     navigation.navigate('Chat', { conversationId: 'new' });
   };
@@ -36,6 +37,10 @@ export default function HomeScreen({ navigation }: Props) {
     Alert.alert('알림', `${featureName} 기능은 현재 준비 중입니다.`);
   };
 
+  const handleReportPress = () => {
+    // MyPageScreen의 문진표 목록 이동 로직과 동일 
+    navigation.navigate('SurveyList');
+  };
 
   useEffect(() => {
     if (!imageUrl) {
@@ -70,7 +75,7 @@ export default function HomeScreen({ navigation }: Props) {
         {/* 오른쪽 작은 버튼 2개 */}
         <View style={styles.rightColumn}>
           <CounselorShortcut onPress={() => handleComingSoonPress('상담사 찾기')} />
-          <ReportShortcut onPress={() => { /* 다음 단계에서 구현 */ }} />
+          <ReportShortcut onPress={handleReportPress} />
         </View>
       </View>
 
