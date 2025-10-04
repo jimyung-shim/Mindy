@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, Alert } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import { usePersona } from '../../stores/personaStore';
 import { colors } from '../../theme/colors';
@@ -11,6 +11,9 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'; 
 import type { AppTabParamList, AppStackParamList } from '../../navigation/types';
 import CalendarView from '../../components/home/CalendarComponent';
+import ChatShortcut from '../../components/home/shortcuts/ChatShortcut';
+import CounselorShortcut from '../../components/home/shortcuts/CounselorShortcut';
+import ReportShortcut from '../../components/home/shortcuts/ReportShortcut';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<AppTabParamList, 'HomeTab'>,
@@ -24,6 +27,14 @@ type Props = {
 export default function HomeScreen({ navigation }: Props) {
   const { personaLabel, imageUrl, reason } = usePersona();
   const nickname = useAuth((s) => s.nickname);
+
+  const handleNewChatPress = () => {
+    navigation.navigate('Chat', { conversationId: 'new' });
+  };
+
+  const handleComingSoonPress = (featureName: string) => {
+    Alert.alert('알림', `${featureName} 기능은 현재 준비 중입니다.`);
+  };
 
 
   useEffect(() => {
@@ -50,8 +61,18 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
         <Text style={styles.dDay}>상담 D-5</Text>
       </Pressable>
-      
-      {/* --- 바로가기 버튼들 (다음 단계에서 추가 예정) --- */}
+
+      {/* --- 바로가기 버튼 영역 --- */}
+      <View style={styles.shortcutContainer}>
+        {/* 왼쪽 큰 버튼 */}
+        <ChatShortcut onPress={handleNewChatPress} />
+
+        {/* 오른쪽 작은 버튼 2개 */}
+        <View style={styles.rightColumn}>
+          <CounselorShortcut onPress={() => handleComingSoonPress('상담사 찾기')} />
+          <ReportShortcut onPress={() => { /* 다음 단계에서 구현 */ }} />
+        </View>
+      </View>
 
 
 
@@ -156,5 +177,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 99,
-  }
+  },
+  shortcutContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 12,
+  },
+  rightColumn: {
+    flex: 1,
+    gap: 12,
+  },
 });
