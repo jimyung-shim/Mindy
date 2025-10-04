@@ -97,25 +97,6 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
       </View>
 
-
-
-      {/*배정 받은 페르소나 상담가 표시*/}
-      <View style={styles.card}>
-        <Text style={styles.title}>나의 상담가</Text>
-        {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.avatar} resizeMode="contain" />
-        ) : (
-          <View style={[styles.avatar, styles.placeholder]} />
-        )}
-        <Text style={styles.label}>{personaLabel ?? '아직 배정되지 않았어요'}</Text>
-        {!!reason && <Text style={styles.reason}>{reason}</Text>}
-        {!imageUrl && (
-          <Text style={styles.helper}>
-            하단 탭의 <Text style={{ fontWeight: '700' }}>마이페이지</Text> → 페르소나 선택으로 배정해 보세요.
-          </Text>
-        )}
-      </View>
-
     </ScreenContainer>
     </View>
   );

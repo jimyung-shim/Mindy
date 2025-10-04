@@ -120,10 +120,6 @@ export default function MyPageScreen({ navigation }: Props) {
       </View> */}
       <Header title='마이페이지'></Header>
 
-      <View style={{ paddingHorizontal: 12, marginBottom: 8 }}>
-        <MyInfoCard />
-      </View>
-
       <View style={styles.divider} />
 
       <SectionList
