@@ -17,6 +17,7 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 // *** 마이페이지의 모든 기능들 완성 후에 주석 풀고 아래 Props 지우기 ***
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AppTabParamList, AppStackParamList } from '../../navigation/types';
+import Header from '../../components/common/Header';
 // type Props = NativeStackScreenProps<AppTabParamList, 'MypageTab'>;
 type Props = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, 'MypageTab'>,
@@ -117,6 +118,7 @@ export default function MyPageScreen({ navigation }: Props) {
           <Text style={styles.editBtnText}>편집하기</Text>
         </Pressable>
       </View> */}
+      <Header title='마이페이지'></Header>
 
       <View style={{ paddingHorizontal: 12, marginBottom: 8 }}>
         <MyInfoCard />
@@ -171,6 +173,7 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#fff',
+    marginTop:10
   },
   header: {
     paddingHorizontal: 20,

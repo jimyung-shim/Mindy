@@ -10,6 +10,7 @@ import type { AppTabParamList, AppStackParamList } from '../../navigation/types'
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import ConversationListItem from '../../components/chat/ConversationListItem';
+import Header from '../../components/common/Header';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<AppTabParamList, 'ChatListTab'>,
@@ -78,7 +79,8 @@ export default function ChatListScreen({navigation}: Props) {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
+    <View style={{ flex: 1, padding: 16, gap: 12, backgroundColor:'white' }}>
+      <Header title='채팅 목록'></Header>
       <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8 }}>
         <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>새 대화 시작</Text>
       </TouchableOpacity>

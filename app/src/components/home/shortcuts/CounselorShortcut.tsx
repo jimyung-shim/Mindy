@@ -9,19 +9,24 @@ type Props = {
 
 export default function CounselorShortcut({ onPress }: Props) {
   return (
+    <View>
+    <Text style={styles.shortcutLabel}>내 맘에 쏙- ♥{"\n"}심리 상담 예약하기</Text>
     <TouchableOpacity style={styles.counselorShortcut} onPress={onPress}>
-      <Text style={styles.shortcutLabel}>내 맘에 쏙- ♥{"\n"}심리 상담 예약하기</Text>
       <View style={styles.shortcutIconWrapper}>
-        <Ionicons name="search-outline" size={24} color={colors.primary} />
+        <Text style={styles.counslerButtonText}>상담사 찾기{"  "}
+            <Ionicons name="search-outline" size={24} color={colors.primary} />
+        </Text>
+        
       </View>
     </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   shortcutLabel: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     lineHeight: 20,
   },
@@ -35,5 +40,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
+  },
+  counslerButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
+    marginTop: 8,
   },
 });

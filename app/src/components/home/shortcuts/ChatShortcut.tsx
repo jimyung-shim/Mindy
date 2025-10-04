@@ -9,20 +9,23 @@ type Props = {
 
 export default function ChatShortcut({ onPress }: Props) {
   return (
+    <View>
+    <Text style={styles.shortcutLabel}>가벼운 마음,{"\n"}속마음 털어놓기 🍀</Text>
     <TouchableOpacity style={styles.chatShortcut} onPress={onPress}>
-      <Text style={styles.shortcutLabel}>가벼운 마음,{"\n"}속마음 털어놓기 🍀</Text>
+      <Text style={styles.chatButtonText}>AI 챗봇 심리상담</Text>
       <View style={styles.chatButtonContent}>
         <Ionicons name="chatbubbles-outline" size={32} color="#fff" />
         <Text style={styles.chatButtonText}>채팅 시작</Text>
       </View>
     </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   shortcutLabel: {
-    color: '#fff',
-    fontSize: 14,
+    color: 'black',
+    fontSize: 12,
     fontWeight: '600',
     lineHeight: 20,
   },
@@ -35,7 +38,7 @@ const styles = StyleSheet.create({
   },
   chatButtonContent: {
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 20,
   },
   chatButtonText: {
     color: '#fff',

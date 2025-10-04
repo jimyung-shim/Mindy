@@ -14,6 +14,7 @@ import CalendarView from '../../components/home/CalendarComponent';
 import ChatShortcut from '../../components/home/shortcuts/ChatShortcut';
 import CounselorShortcut from '../../components/home/shortcuts/CounselorShortcut';
 import ReportShortcut from '../../components/home/shortcuts/ReportShortcut';
+import Header from '../../components/common/Header';
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<AppTabParamList, 'HomeTab'>,
@@ -51,6 +52,7 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer>
+      <Header title="Mindy"></Header>
       {/* --- 환영 메시지 --- */}
       <Text style={styles.welcomeTitle}>안녕하세요, {nickname ?? '마인디'}님 :)</Text>
       <Text style={styles.welcomeSubtitle}>오늘도 가볍게 마음을 체크해 보세요.</Text>
