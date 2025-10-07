@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
@@ -10,6 +10,7 @@ import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UserModule, // 유저 조회/검증을 위해
     JwtModule.registerAsync({
@@ -23,7 +24,7 @@ import { PassportModule } from '@nestjs/passport';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, RefreshTokenRepository, JwtStrategy],
+  providers: [AuthService, RefreshTokenRepository, JwtStrategy, ConfigService],
   exports: [AuthService, PassportModule],
 })
 export class AuthModule {}

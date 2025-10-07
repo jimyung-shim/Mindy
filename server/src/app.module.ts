@@ -16,6 +16,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ChatModule } from './chat/chat.module';
 import { SurveyModule } from './survey/survey.module';
 import { RiskModule } from './risk/risk.module';
+import { CounselorsModule } from './counselors/counselors.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 const envSchema: ObjectSchema = Joi.object({
   MONGO_URI: Joi.string().uri().required(),
@@ -48,6 +50,8 @@ const envSchema: ObjectSchema = Joi.object({
     PersonaToolModule,
     SurveyModule,
     RiskModule,
+    CounselorsModule,
+    ReservationsModule,
   ],
   controllers: [PersonaController],
   providers: [
