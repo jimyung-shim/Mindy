@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { saveTokens, clearTokens, loadTokens } from '../services/secure';
-import type { AuthResponse } from '../services/api';
+import type { AuthResponse } from '../services/api-types'; // 경로 변경
 
 type Session = {
   accessToken?: string;

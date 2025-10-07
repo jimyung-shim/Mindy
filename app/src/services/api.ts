@@ -1,7 +1,8 @@
 import { authedFetch } from './http';
 import { CategoryKey } from './persona';
+import type { AuthResponse } from './api-types'; // 경로 변경
 
-export type AuthResponse = { accessToken: string; refreshToken: string; userId: string, nickname: string };
+// export type AuthResponse = { accessToken: string; refreshToken: string; userId: string, nickname: string };
 
 // 페르소나 배정 응답 형식
 export type PersonaAssignResponse = {

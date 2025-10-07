@@ -2,6 +2,7 @@ import { SERVER_URL } from '@env';
 import { useAuth } from '../stores/authStore';
 import { saveTokens, loadTokens } from './secure';
 import { Alert } from 'react-native';
+import type { AuthResponse } from './api-types';
 
 
 
