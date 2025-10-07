@@ -44,4 +44,7 @@ async function main() {
 }
 
 // main 함수를 호출
-main();
+main().catch((e) => {
+  console.error('Unhandled error in main:', e);
+  process.exit(1);
+});
