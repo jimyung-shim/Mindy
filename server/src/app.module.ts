@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import Joi, { ObjectSchema } from 'joi';
 import { PrismaModule } from './prisma/prisma.module';
@@ -31,6 +31,7 @@ const envSchema: ObjectSchema = Joi.object({
   PERSONA_ASSIGN_STRATEGY: Joi.string().required(),
 });
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({

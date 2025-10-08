@@ -90,7 +90,7 @@ export async function getMessages(conversationId: string) {
 
 // 내 예약 정보 불러오기
 export async function getMyReservations(): Promise<ReservationItem[]> { // 실제 Reservation 타입 사용 권장
-  const res = await authedFetch('/reservations/me');
+  const res = await authedFetch('/reservations/me', { method: 'GET' });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

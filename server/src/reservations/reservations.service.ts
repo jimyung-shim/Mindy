@@ -14,4 +14,25 @@ export class ReservationsService {
       },
     });
   }
+
+  // 로그인한 사용자의 모든 예약 목록을 조회
+  findAllForUser(userId: string) {
+    return this.prisma.reservation.findMany({
+      where: {
+        userId: userId, // 전달받은 userId와 일치하는 예약만 조회
+      },
+      orderBy: {
+        reservationAt: 'desc', // 예약 날짜를 기준으로 최신순으로 정렬
+      },
+      // 관계를 맺고 있는 Counselor(상담사) 정보를 함께 가져오도록 설정
+      include: {
+        counselor: {
+          select: { // 필요한 상담사 정보만 선택적으로 포함
+            name: true,
+            title: true,
+          },
+        },
+      },
+    });
+  }
 }
