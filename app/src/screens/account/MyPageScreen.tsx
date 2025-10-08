@@ -75,7 +75,7 @@ export default function MyPageScreen({ navigation }: Props) {
           key: 'reservation',
           label: '예약',
           icon: <Feather name="calendar" size={20} />,
-          onPress: () => onPrepareFeature('예약') // 임시 처리
+          onPress: () => navigation.navigate('MyReservations'),//onPrepareFeature('예약') // 임시 처리
         },
         {
           key: 'about',

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import Joi, { ObjectSchema } from 'joi';
 import { PrismaModule } from './prisma/prisma.module';
@@ -16,6 +16,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ChatModule } from './chat/chat.module';
 import { SurveyModule } from './survey/survey.module';
 import { RiskModule } from './risk/risk.module';
+import { CounselorsModule } from './counselors/counselors.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 const envSchema: ObjectSchema = Joi.object({
   MONGO_URI: Joi.string().uri().required(),
@@ -29,6 +31,7 @@ const envSchema: ObjectSchema = Joi.object({
   PERSONA_ASSIGN_STRATEGY: Joi.string().required(),
 });
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -48,6 +51,8 @@ const envSchema: ObjectSchema = Joi.object({
     PersonaToolModule,
     SurveyModule,
     RiskModule,
+    CounselorsModule,
+    ReservationsModule,
   ],
   controllers: [PersonaController],
   providers: [
