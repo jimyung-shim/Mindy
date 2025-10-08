@@ -46,6 +46,10 @@ export default function HomeScreen({ navigation }: Props) {
     navigation.navigate('SurveyList');
   };
 
+  const handleCounselorSearchPress = () => {
+    navigation.navigate('ReserveTab');
+  }
+
   // 메뉴 버튼을 누르면 store의 openDrawer 함수 호출
   const handleProfilePress = () => {
     openDrawer();
@@ -99,7 +103,7 @@ export default function HomeScreen({ navigation }: Props) {
 
         {/* 오른쪽 작은 버튼 2개 */}
         <View style={styles.rightColumn}>
-          <CounselorShortcut onPress={() => handleComingSoonPress('상담사 찾기')} />
+          <CounselorShortcut onPress={ handleCounselorSearchPress/*() => handleComingSoonPress('상담사 찾기')*/} />
           <ReportShortcut onPress={handleReportPress} />
         </View>
       </View>
