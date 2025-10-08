@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+//import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../../theme/colors';
 
 type Props = {
@@ -9,14 +9,13 @@ type Props = {
 
 export default function ReportShortcut({ onPress }: Props) {
   return (
-    <View>
+    <View style={{height: 120}}>
     <Text style={styles.shortcutLabel}>AI CBT 기반, 마음 분석소 🏠</Text>
     <TouchableOpacity style={styles.reportShortcut} onPress={onPress}>
       
       <View style={styles.shortcutIconWrapper}>
-        <Text style={styles.reportButtonText}>마음 리포트 {"  "}
-            <Ionicons name="document-text-outline" size={24} color={colors.primary} />
-        </Text>
+        <Image source={require('../../../../assets/icons/report.png')} style={styles.icon} />
+        <Text style={styles.reportButtonText}>마음 리포트</Text>
       </View>
     </TouchableOpacity>
     </View>
@@ -38,12 +37,18 @@ const styles = StyleSheet.create({
   },
   shortcutIconWrapper: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   reportButtonText: {
     color: 'black',
     fontWeight: 'bold',
     marginTop: 8,
+    fontSize: 20
   },
+  icon: {
+    width: 48,
+    height: 48,
+  }
 });
