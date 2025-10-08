@@ -3,6 +3,12 @@ import type { NavigatorScreenParams, CompositeScreenProps } from '@react-navigat
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+// 로그인/회원가입 화면 목록 타입
+export type AuthStackParamList = {
+    Login: undefined;
+    Signup: undefined;
+};
+
 // 공통 Counselor 타입
 export type Counselor = {
   id: string;
@@ -29,6 +35,12 @@ export type AppStackParamList = {
   Survey: { draftId: string };
   SurveyList: undefined;
   CounselorDetail: { counselorId: string }; // 상세 화면 추가
+};
+
+// 복구: 최상위 루트 네비게이터 타입
+export type RootStackParamList = {
+    Auth: NavigatorScreenParams<AuthStackParamList>;
+    App: NavigatorScreenParams<AppStackParamList>;
 };
 
 // ReservationScreen에서 사용할 Props 타입

@@ -1,4 +1,3 @@
-// app/src/navigation/AppNavigator.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PersonaSelectScreen from '../screens/persona/PersonaSelectScreen';
@@ -9,17 +8,20 @@ import SurveyScreen from '../screens/survey/SurveyScreen';
 import SurveyListScreen from '../screens/survey/SurveyListScreen';
 import CounselorDetailScreen from '../screens/reservation/CounselorDetailScreen'; // 추가
 import { useAuth } from '../stores/authStore';
+import { usePersona } from '../stores/personaStore';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export default function AppNavigator() {
     const hydrated = useAuth((s) => s.hydrated);
-    const hasSession = useAuth((s) => !!s.userId);
+    //const hasSession = useAuth((s) => !!s.userId);
+    const hasPersona = usePersona((s) => !!s.personaKey);
+
 
     if (!hydrated) return null; // or a loading screen
 
     return (
-        <Stack.Navigator initialRouteName={hasSession ? 'Tabs' : 'PersonaSelect'}>
+        <Stack.Navigator initialRouteName={hasPersona ? 'Tabs' : 'PersonaSelect'}>
             <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}/>
             <Stack.Screen name="PersonaSelect" component={PersonaSelectScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Chat" component={ChatScreen}/>
