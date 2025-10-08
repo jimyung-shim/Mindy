@@ -35,6 +35,7 @@ export type AppStackParamList = {
   Survey: { draftId: string };
   SurveyList: undefined;
   CounselorDetail: { counselorId: string }; // 상세 화면 추가
+  MyReservations: undefined;
 };
 
 // 복구: 최상위 루트 네비게이터 타입

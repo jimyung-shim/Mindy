@@ -1,6 +1,7 @@
 import { authedFetch } from './http';
 import { CategoryKey } from './persona';
 import type { AuthResponse } from './api-types'; // 경로 변경
+import type { ReservationItem } from '../components/reservation/ReservationListItem';
 
 // export type AuthResponse = { accessToken: string; refreshToken: string; userId: string, nickname: string };
 
@@ -83,6 +84,13 @@ export async function deleteConversation(id: string) {
 // 메시지 로드
 export async function getMessages(conversationId: string) {
   const res = await authedFetch(`/conversations/${conversationId}/messages`);
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// 내 예약 정보 불러오기
+export async function getMyReservations(): Promise<ReservationItem[]> { // 실제 Reservation 타입 사용 권장
+  const res = await authedFetch('/reservations/me');
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

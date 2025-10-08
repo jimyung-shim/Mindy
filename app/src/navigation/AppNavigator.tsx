@@ -9,6 +9,7 @@ import SurveyListScreen from '../screens/survey/SurveyListScreen';
 import CounselorDetailScreen from '../screens/reservation/CounselorDetailScreen'; // 추가
 import { useAuth } from '../stores/authStore';
 import { usePersona } from '../stores/personaStore';
+import MyReservationsScreen from '../screens/reservation/MyReservationsScreen';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -28,6 +29,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Survey" component={SurveyScreen} options={{ title: '문진표' }} />
             <Stack.Screen name="SurveyList" component={SurveyListScreen} />
             <Stack.Screen name="CounselorDetail" component={CounselorDetailScreen} />
+            <Stack.Screen name="MyReservations" component={MyReservationsScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }
