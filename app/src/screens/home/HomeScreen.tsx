@@ -70,14 +70,21 @@ export default function HomeScreen({ navigation }: Props) {
       />
     <ScreenContainer>
       {/* --- 환영 메시지 --- */}
-      <Text style={styles.welcomeTitle}>안녕하세요, {nickname ?? '마인디'}님 :)</Text>
-      <Text style={styles.welcomeSubtitle}>오늘도 가볍게 마음을 체크해 보세요.</Text>
+      <View style={{flexDirection: 'row' }}>
+        <Image source={require('../../../assets/icons/user.png')} style={styles.userIcon} />
+        <Text style={styles.welcomeTitle}>안녕하세요, {nickname ?? '마인디'}님 :)</Text>
+      </View>
       
+      <View style={{flexDirection: 'row' }}>
+        <Text style={styles.welcomeSubtitle}>캘린더 확인하기</Text>
+        <Image source={require('../../../assets/icons/calendar.gif')} style={styles.calendarIcon} />
+      </View>
       {/* --- 캘린더 컴포넌트 --- */}
       <CalendarView /> 
       
       {/* --- 예약 정보 (임시 UI) --- */}
       <Pressable style={styles.reservationCard}>
+        <Image source={require('../../../assets/icons/counselor.png')} style={styles.counselorIcon} />
         <View>
           <Text style={styles.reservationTitle}>김은경 인턴 상담사님과</Text>
           <Text style={styles.reservationTime}>12월 20일 / 15:00</Text>
@@ -150,10 +157,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   welcomeSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textMuted,
     paddingHorizontal: 4,
     marginBottom: 16,
+    fontWeight: 'bold',
   },
   reservationCard: {
     flexDirection: 'row',
@@ -191,5 +199,17 @@ const styles = StyleSheet.create({
   rightColumn: {
     flex: 1,
     gap: 12,
+  },
+  userIcon: {
+    width: 35,
+    height: 35,
+  },
+  calendarIcon: {
+    width: 20,
+    height: 20,
+  },
+  counselorIcon: {
+    width: 60,
+    height: 60,
   },
 });
