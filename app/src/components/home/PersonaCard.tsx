@@ -5,6 +5,7 @@ import { colors } from '../../theme/colors';
 
 export default function PersonaCard() {
   const { personaLabel, imageUrl, reason } = usePersona();
+  console.log(imageUrl);
 
   return (
     <View style={styles.card}>
