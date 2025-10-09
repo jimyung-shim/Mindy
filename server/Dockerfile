@@ -1,43 +1,39 @@
-# ----------------- STAGE 1: Build aplication -----------------
+# ----------------- STAGE 1: 빌드 환경 -----------------
 FROM node:20-alpine AS builder
 
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# Prisma 스키마와 package.json 파일을 먼저 복사하여 종속성 캐싱 활용
-COPY prisma ./prisma/
+# package.json 파일을 먼저 복사하여 종속성 설치 캐싱 활용
 COPY package*.json ./
 
-# 모든 종속성 설치 (dev 포함, 빌드 및 prisma generate에 필요)
+# 개발용을 포함한 모든 종속성 설치
 RUN npm install
 
-# Prisma 클라이언트 생성
+# Prisma 타입을 먼저 생성해야 TypeScript 빌드가 성공합니다.
+# Prisma 스키마 파일을 복사합니다.
+COPY prisma ./prisma/
+# Prisma 클라이언트(타입)를 생성합니다.
 RUN npx prisma generate
 
-# 나머지 소스 코드 복사
+# 나머지 모든 소스코드 복사
 COPY . .
 
-# 애플리케이션 빌드
+# 애플리케이션 빌드 (dist 폴더 생성)
 RUN npm run build
 
-# ----------------- STAGE 2: Production image -----------------
-FROM node:20-alpine AS runner
 
-# 작업 디렉토리 설정
+# ----------------- STAGE 2: 최종 운영 환경 -----------------
+FROM node:20-alpine
+
 WORKDIR /app
 
-# 프로덕션용 종속성만 설치하기 위해 package.json 복사
-COPY package*.json ./
-RUN npm install --only=production
-
-# 빌드 스테이지에서 빌드된 결과물과 필요 파일들만 복사
+# 빌드 단계에서 생성된 필수 파일들만 복사합니다.
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
-# 생성된 Prisma 클라이언트 복사
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# 애플리케이션이 3000번 포트를 사용
 EXPOSE 3000
 
-# 컨테이너 실행 시 Prisma 마이그레이션을 적용하고 서버를 시작
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+# package.json에 정의된 start:prod 스크립트를 사용합니다.
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
