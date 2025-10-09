@@ -70,5 +70,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     alignSelf:'flex-end',
+    opacity: 0.48,
   },
 });
