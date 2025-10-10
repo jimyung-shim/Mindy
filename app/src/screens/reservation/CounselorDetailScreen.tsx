@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   Button,
+  Image,
 } from 'react-native';
 // 1. 새로운 캘린더 라이브러리를 import 합니다.
 import CalendarPicker from 'react-native-calendar-picker';
@@ -19,6 +20,7 @@ import Header from '../../components/common/Header';
 import { http, authedPost } from '../../services/http';
 import { Counselor } from '../../navigation/types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { SERVER_URL } from '@env'
 
 // 네비게이션 파라미터 타입 정의
 type RootStackParamList = {
@@ -47,6 +49,7 @@ export default function CounselorDetailScreen({ route, navigation }: CounselorDe
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
 
   const isBookingReady = !!(selectedDate && selectedLocation);
+
 
   useEffect(() => {
     const fetchCounselorDetails = async () => {
@@ -111,13 +114,17 @@ export default function CounselorDetailScreen({ route, navigation }: CounselorDe
     );
   }
 
+  const fullImageUrl = (SERVER_URL ?? '') + counselor.imageUrl;
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header title="상담사 정보 및 예약" />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.profileSection}>
-          <Text style={styles.name}>{counselor.name}</Text>
-          <Text style={styles.bio}>{counselor.bio}</Text>
+          <Image source={{ uri: fullImageUrl }} style={styles.profileImage} />
+          <View style={styles.profileTextContainer}>
+            <Text style={styles.name}>{counselor.name}</Text>
+            <Text style={styles.bio}>{counselor.bio}</Text>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -200,7 +207,16 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { paddingBottom: 100 },
-  profileSection: { padding: 20, borderBottomWidth: 1, borderBottomColor: colors.border },
+  profileSection: { flexDirection: 'row', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderBottomColor: colors.border },
+  profileImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    marginRight: 16,
+  },
+  profileTextContainer: {
+    flex: 1
+  },
   name: { fontSize: 22, fontWeight: 'bold', marginBottom: 4 },
   bio: { fontSize: 14, color: colors.text },
   section: { padding: 20 },
