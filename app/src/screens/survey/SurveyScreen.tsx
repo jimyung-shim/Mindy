@@ -1,5 +1,3 @@
-// app/src/screens/survey/SurveyScreen.tsx
-
 import React, { useState, useCallback, useLayoutEffect } from "react";
 import {
   View,
@@ -9,6 +7,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   useFocusEffect,
   useNavigation,
@@ -59,7 +58,7 @@ export default function SurveyScreen({ route }: Props) {
   );
   useLayoutEffect(() => {
     navigation.setOptions({
-      header: () => <Header title="AI 자동 완성 문진표" canGoBack />,
+      header: () =><SafeAreaView style={{marginBottom:-90}}><Header title="AI 자동 완성 문진표" canGoBack /></SafeAreaView>,
     });
   }, [navigation]);
 
@@ -72,6 +71,7 @@ export default function SurveyScreen({ route }: Props) {
   }
 
   return (
+    <SafeAreaView>
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.summaryBox}>
         <Text style={styles.summaryTitle}>AI 대화 요약</Text>
@@ -143,6 +143,7 @@ export default function SurveyScreen({ route }: Props) {
 
       {/* [!] 제출(수정) 기능은 여기에 추가 구현 필요 */}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -154,6 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
+    marginTop:20,
   },
   summaryTitle: {
     fontSize: 16,

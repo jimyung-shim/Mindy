@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { getMyReservations } from '../../services/api';
 import ReservationListItem, { ReservationItem } from '../../components/reservation/ReservationListItem';
@@ -41,7 +42,7 @@ export default function MyReservationsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header title="나의 예약 내역" canGoBack />
       <FlatList
         data={reservations}
@@ -55,7 +56,7 @@ export default function MyReservationsScreen() {
           </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

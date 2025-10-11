@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, FlatList, TouchableOpacity, Text, RefreshControl, Alert } from 'react-native';
+import { View, FlatList, TouchableOpacity, Text, RefreshControl, Alert, StyleSheet } from 'react-native';
 import { listConversations, createConversation, deleteConversation as apiDeleteConversation } from '../../services/api';
 import { useChatStore } from '../../stores/chatStore';
 import { useNavigation } from '@react-navigation/native';
@@ -79,7 +79,7 @@ export default function ChatListScreen({navigation}: Props) {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12, backgroundColor:'white' }}>
+    <View style={{ flex: 1,backgroundColor:'white' }}>
       <Header
         title="채팅 목록"
         headerRight={ // [!] headerRight prop을 직접 전달
@@ -87,13 +87,13 @@ export default function ChatListScreen({navigation}: Props) {
             onPress={load}
             disabled={refreshing}
             accessibilityLabel="대화목록 새로고침"
-            style={{ marginRight: 16, padding: 4, opacity: refreshing ? 0.5 : 1 }}
+            style={{ marginRight: 8, padding: 4, opacity: refreshing ? 0.5 : 1 }}
           >
             <Ionicons name="refresh" size={24} color={colors.text} />
           </TouchableOpacity>
         }
       />
-      <TouchableOpacity onPress={onNewChat} style={{ padding: 12, backgroundColor: '#111', borderRadius: 8 }}>
+      <TouchableOpacity onPress={onNewChat} style={styles.startNewConversation}>
         <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>새 대화 시작</Text>
       </TouchableOpacity>
 
@@ -112,3 +112,15 @@ export default function ChatListScreen({navigation}: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  startNewConversation: {
+    padding: 12,
+    backgroundColor: '#111',
+    borderRadius: 8,
+    marginLeft:16,
+    marginRight:16,
+    marginTop:19,
+    marginBottom:16,
+  }
+})

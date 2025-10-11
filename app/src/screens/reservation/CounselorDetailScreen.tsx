@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
   Modal,
@@ -21,6 +20,7 @@ import { http, authedPost } from '../../services/http';
 import { Counselor } from '../../navigation/types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SERVER_URL } from '@env'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // 네비게이션 파라미터 타입 정의
 type RootStackParamList = {
@@ -118,6 +118,7 @@ export default function CounselorDetailScreen({ route, navigation }: CounselorDe
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <Header title="상담사 정보 및 예약" canGoBack />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.profileSection}>
           <Image source={{ uri: fullImageUrl }} style={styles.profileImage} />
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   locationTextSelected: { color: '#fff', fontWeight: 'bold' },
   footer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 30,
     left: 0,
     right: 0,
     padding: 20,

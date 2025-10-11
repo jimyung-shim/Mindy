@@ -2,7 +2,8 @@ import 'react-native-get-random-values';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, TextInput, KeyboardAvoidingView,
   Platform, FlatList, TouchableOpacity,
-  Text, Alert, Image, Keyboard, SafeAreaView, StyleSheet} from 'react-native';
+  Text, Alert, Image, Keyboard, StyleSheet} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Crypto from 'expo-crypto';
@@ -117,10 +118,12 @@ export default function ChatScreen({ route }: Props) {
 
   navigation.setOptions({
     header: () => (
+      <SafeAreaView style={{marginBottom:-90}}>
       <Header
         title={`대화 #${conversationId.slice(-6)}`}
         canGoBack
       />
+      </SafeAreaView>
     ),
   });
 

@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { useAuth } from './src/stores/authStore';
 import RootNavigator from './src/navigation/RootNavigator';
 import CustomDrawer from './src/components/common/CustomDrawer';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function Splash() {
   return (
@@ -25,9 +26,9 @@ export default function App() {
 
   if (!hydrated) return <Splash />;
   return (
-    <>
+    <SafeAreaProvider>
       <RootNavigator />
       <CustomDrawer />
-    </>
+    </SafeAreaProvider>
   );
 }

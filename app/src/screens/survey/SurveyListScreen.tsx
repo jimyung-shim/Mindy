@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../stores/authStore";
 import { listMySurveys, deleteSurvey } from "../../services/surveyApi";
@@ -74,7 +75,7 @@ export default function SurveyListScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      header: () => <Header title="내 문진표" canGoBack />,
+      header: () => <SafeAreaView style={{marginBottom:-90}}><Header title="내 문진표" canGoBack /></SafeAreaView>,
     });
   }, [navigation]);
 
@@ -94,6 +95,8 @@ export default function SurveyListScreen() {
   }
 
   return (
+    <SafeAreaView style={{flex:1} }>
+    <View style={{marginBottom:20}} />
     <FlatList
       data={surveys}
       keyExtractor={(item) => item.id}
@@ -112,6 +115,7 @@ export default function SurveyListScreen() {
         </View>
       }
     />
+    </SafeAreaView>
   );
 }
 
