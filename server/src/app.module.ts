@@ -18,6 +18,8 @@ import { SurveyModule } from './survey/survey.module';
 import { RiskModule } from './risk/risk.module';
 import { CounselorsModule } from './counselors/counselors.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 const envSchema: ObjectSchema = Joi.object({
   MONGO_URI: Joi.string().uri().required(),
@@ -41,6 +43,10 @@ const envSchema: ObjectSchema = Joi.object({
     }),
     MongooseModule.forRoot(process.env.MONGO_URI!, {
       serverSelectionTimeoutMS: 5000,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/public',
     }),
     ChatModule,
     ThrottlerModule.forRoot([{ ttl: 60, limit: 30 }]), // 1분 30회

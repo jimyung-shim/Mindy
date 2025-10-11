@@ -28,7 +28,7 @@ export default function AppNavigator() {
             <Stack.Screen name="Chat" component={ChatScreen}/>
             <Stack.Screen name="Survey" component={SurveyScreen} options={{ title: '문진표' }} />
             <Stack.Screen name="SurveyList" component={SurveyListScreen} />
-            <Stack.Screen name="CounselorDetail" component={CounselorDetailScreen} />
+            <Stack.Screen name="CounselorDetail" component={CounselorDetailScreen} options={{ title: '상담사 정보 및 예약' }}/>
             <Stack.Screen name="MyReservations" component={MyReservationsScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
     );

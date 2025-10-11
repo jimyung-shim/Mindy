@@ -13,28 +13,33 @@ import { colors } from '../../theme/colors';
 import Header from '../../components/common/Header';
 import { http } from '../../services/http';
 import { Counselor, ReservationScreenProps } from '../../navigation/types';
+import { SERVER_URL } from '@env';
 
 // 각 상담사 항목을 렌더링하는 카드 컴포넌트
-const CounselorCard = ({ item, onPress }: { item: Counselor; onPress: () => void }) => (
-  <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
-    <Image source={{ uri: item.imageUrl }} style={styles.profileImage} />
-    <View style={styles.infoContainer}>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.bio} numberOfLines={2}>{item.bio}</Text>
-      <View style={styles.tagsContainer}>
-        {item.tags.slice(0, 4).map((tag, index) => (
-          <View key={index} style={styles.tag}>
-            <Text style={styles.tagText}>{tag}</Text>
-          </View>
-        ))}
+const CounselorCard = ({ item, onPress }: { item: Counselor; onPress: () => void }) => {
+
+  const fullImageUrl = (SERVER_URL ?? '') + item.imageUrl;
+  return (
+    <TouchableOpacity style={styles.cardContainer} onPress={onPress}>
+      <Image source={{ uri: fullImageUrl }} style={styles.profileImage} />
+      <View style={styles.infoContainer}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.bio} numberOfLines={2}>{item.bio}</Text>
+        <View style={styles.tagsContainer}>
+          {item.tags.slice(0, 4).map((tag, index) => (
+            <View key={index} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={styles.detailButton}>
+          <Text style={styles.detailButtonText}>자세히보기 →</Text>
+        </View>
       </View>
-      <View style={styles.detailButton}>
-        <Text style={styles.detailButtonText}>자세히보기 →</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
+    </TouchableOpacity>
+  );
+};
 
 export default function ReservationScreen({ navigation }: ReservationScreenProps) {
   const [counselors, setCounselors] = useState<Counselor[]>([]);
