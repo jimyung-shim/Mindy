@@ -19,7 +19,7 @@
       "package": "com.meow.mindyapp",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/mindy.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
