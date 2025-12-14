@@ -1,5 +1,5 @@
 
-````markdown
+
 # 🐱 MINDY (마인디) - AI 챗봇 & 인턴 상담사 연계 심리상담 플랫폼
 
 ![Project Status](https://img.shields.io/badge/Status-Development-blue)
@@ -165,6 +165,4 @@ npx expo start
 
 This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE).
 
-```
-작성해 드린 내용으로 `README.md` 파일을 생성하시겠습니까? 아니면 특정 부분을 수정하고 싶으신가요?
-```**
+
